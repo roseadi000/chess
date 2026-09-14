@@ -62,8 +62,8 @@ public class ChessPiece {
 
             //row++ col++
             int j = myPosition.getColumn();
-            for (int i = myPosition.getRow(); i < 8; i++) {
-                if (j >= 8) {
+            for (int i = myPosition.getRow(); i < 9; i++) {
+                if (j > 8) {
                     break;
                 }
 
@@ -84,7 +84,7 @@ public class ChessPiece {
 
             //row++ col--
             j = myPosition.getColumn();
-            for (int i = myPosition.getRow(); i < 8; i++) {
+            for (int i = myPosition.getRow(); i < 9; i++) {
                 if (j <= 0) {
                     break;
                 }
@@ -106,7 +106,7 @@ public class ChessPiece {
             //row-- col++
             j = myPosition.getColumn();
             for (int i = myPosition.getRow(); i > 0; i--) {
-                if (j >= 8) {
+                if (j > 8) {
                     break;
                 }
                 ChessPosition pos = new ChessPosition(i, j);
@@ -144,7 +144,7 @@ public class ChessPiece {
                 }
                 j--;
             }
-            System.out.println(moves);
+            //System.out.println(moves);
             return moves;
         }
         return List.of();
