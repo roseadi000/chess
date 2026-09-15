@@ -1,9 +1,6 @@
 package chess;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a single chess piece
@@ -21,30 +18,33 @@ public class ChessPiece {
         Collection<ChessMove> moves = new ArrayList<>();
 
         //row++ col++
-        int j = myPosition.getColumn();
-        for (int i = myPosition.getRow(); i < 9; i++) {
+        int j = myPosition.getColumn() + 1;
+        for (int i = myPosition.getRow() + 1; i < 9; i++) {
             if (j > 8) {
                 break;
             }
 
             ChessPosition pos = new ChessPosition(i, j);
-            if (board.getPiece(pos) == null) {
+            ChessPiece otherPiece = board.getPiece(pos);
+            if (otherPiece == null) {
                 ChessMove move = new ChessMove(myPosition, pos, null);
                 moves.add(move);
             }
             else {
-                ChessPiece otherPiece = board.getPiece(pos);
                 if (otherPiece.getTeamColor() != this.pieceColor) {
                     ChessMove move = new ChessMove(myPosition, pos, null);
                     moves.add(move);
+                }
+                else {
+                    break;
                 }
             }
             j++;
         }
 
         //row++ col--
-        j = myPosition.getColumn();
-        for (int i = myPosition.getRow(); i < 9; i++) {
+        j = myPosition.getColumn() - 1;
+        for (int i = myPosition.getRow() + 1; i < 9; i++) {
             if (j <= 0) {
                 break;
             }
@@ -59,13 +59,16 @@ public class ChessPiece {
                     ChessMove move = new ChessMove(myPosition, pos, null);
                     moves.add(move);
                 }
+                else {
+                    break;
+                }
             }
             j--;
         }
 
         //row-- col++
-        j = myPosition.getColumn();
-        for (int i = myPosition.getRow(); i > 0; i--) {
+        j = myPosition.getColumn() + 1;
+        for (int i = myPosition.getRow() - 1; i > 0; i--) {
             if (j > 8) {
                 break;
             }
@@ -80,13 +83,16 @@ public class ChessPiece {
                     ChessMove move = new ChessMove(myPosition, pos, null);
                     moves.add(move);
                 }
+                else {
+                    break;
+                }
             }
             j++;
         }
 
         //row-- col--
-        j = myPosition.getColumn();
-        for (int i = myPosition.getRow(); i > 0; i--) {
+        j = myPosition.getColumn() - 1;
+        for (int i = myPosition.getRow() - 1; i > 0; i--) {
             if (j <= 0) {
                 break;
             }
@@ -100,6 +106,9 @@ public class ChessPiece {
                 if (otherPiece.getTeamColor() != this.pieceColor) {
                     ChessMove move = new ChessMove(myPosition, pos, null);
                     moves.add(move);
+                }
+                else {
+                    break;
                 }
             }
             j--;
@@ -152,5 +161,19 @@ public class ChessPiece {
             return BishopMoves(board, myPosition);
         }
         return List.of();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
     }
 }
