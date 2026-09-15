@@ -34,6 +34,7 @@ public class ChessPiece {
                 if (otherPiece.getTeamColor() != this.pieceColor) {
                     ChessMove move = new ChessMove(myPosition, pos, null);
                     moves.add(move);
+                    break;
                 }
                 else {
                     break;
@@ -58,6 +59,7 @@ public class ChessPiece {
                 if (otherPiece.getTeamColor() != this.pieceColor) {
                     ChessMove move = new ChessMove(myPosition, pos, null);
                     moves.add(move);
+                    break;
                 }
                 else {
                     break;
@@ -82,6 +84,7 @@ public class ChessPiece {
                 if (otherPiece.getTeamColor() != this.pieceColor) {
                     ChessMove move = new ChessMove(myPosition, pos, null);
                     moves.add(move);
+                    break;
                 }
                 else {
                     break;
@@ -106,6 +109,7 @@ public class ChessPiece {
                 if (otherPiece.getTeamColor() != this.pieceColor) {
                     ChessMove move = new ChessMove(myPosition, pos, null);
                     moves.add(move);
+                    break;
                 }
                 else {
                     break;
