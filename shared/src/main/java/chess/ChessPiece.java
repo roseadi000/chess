@@ -147,6 +147,34 @@ public class ChessPiece {
 
         return moves;
     }
+
+   private Collection <ChessMove> KnightMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        int r = myPosition.getRow();
+        int c = myPosition.getColumn();
+
+        List<List<Integer>> movements = List.of(List.of(-2, -1), List.of(-2, 1),
+               List.of(-1, -2), List.of(-1, 2),
+               List.of(1, -2), List.of(1, 2),
+               List.of(2, -1), List.of(2, 1));
+
+        for (List<Integer> m : movements) {
+            int nR = r + m.get(0);
+            int nC = c + m.get(1);
+
+            if ((nR < 8) && (nC < 8)) {
+                if ((nR >= 0) && (nC >= 0)){
+                    ChessPosition pos = new ChessPosition(nR, nC);
+                    ChessMove move = new ChessMove(myPosition, pos, null);
+                    moves.add(move);
+                }
+            }
+        }
+
+        return moves;
+   }
+
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
         this.pieceColor = pieceColor;
         this.type = type;
@@ -192,6 +220,9 @@ public class ChessPiece {
         }
         else if (piece.getPieceType() == PieceType.KING) {
             return KingMoves(board, myPosition);
+        }
+        else if (piece.getPieceType() == PieceType.KNIGHT) {
+            return KnightMoves(board, myPosition);
         }
         return List.of();
     }
