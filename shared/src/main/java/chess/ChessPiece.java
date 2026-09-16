@@ -163,11 +163,13 @@ public class ChessPiece {
             int nR = r + m.get(0);
             int nC = c + m.get(1);
 
-            if ((nR < 8) && (nC < 8)) {
-                if ((nR >= 0) && (nC >= 0)){
+            if ((nR <= 8) && (nC <= 8)) {
+                if ((nR > 0) && (nC > 0)){
                     ChessPosition pos = new ChessPosition(nR, nC);
-                    ChessMove move = new ChessMove(myPosition, pos, null);
-                    moves.add(move);
+                    if ((board.getPiece(pos) == null || (board.getPiece(pos).getTeamColor() != this.pieceColor))) {
+                        ChessMove move = new ChessMove(myPosition, pos, null);
+                        moves.add(move);
+                    }
                 }
             }
         }
