@@ -195,24 +195,23 @@ public class ChessPiece {
                    moves.add(move);
                }
            }
-           else {
                if ((r < 8) && (r > 0)) {
-                   if ((c < 8) && (c > 0)) {
-                       ChessPosition right = new ChessPosition(r + 1, c + 1);
-                       ChessPosition left = new ChessPosition(r + 1, c - 1);
-
+                   ChessPosition right = new ChessPosition(r + 1, c + 1);
+                   ChessPosition left = new ChessPosition(r + 1, c - 1);
+                   if ((c < 8) && (c >= 0)) {
                        if ((board.getPiece(right) != null) && (board.getPiece(right).getTeamColor() != this.pieceColor)) {
                            ChessMove move = new ChessMove(myPosition, right, null);
                            moves.add(move);
-                       } else if ((board.getPiece(left) != null) && (board.getPiece(left).getTeamColor() != this.pieceColor)) {
+                       }
+                   }
+                   if ((c <= 8) && (c > 0)) {
+                       if ((board.getPiece(left) != null) && (board.getPiece(left).getTeamColor() != this.pieceColor)) {
                            ChessMove move = new ChessMove(myPosition, left, null);
                            moves.add(move);
                        }
                    }
                }
            }
-
-       }
        else if (this.pieceColor == ChessGame.TeamColor.BLACK) {
            ChessPosition pos = new ChessPosition(r - 1, c);
            if (board.getPiece(pos) == null) {
@@ -226,23 +225,23 @@ public class ChessPiece {
                 moves.add(move);
             }
        }
-       else {
            if ((r < 8) && (r > 0)) {
-               if ((c < 8) && (c > 0)) {
-                   ChessPosition right = new ChessPosition(r - 1, c + 1);
-                   ChessPosition left = new ChessPosition(r - 1, c - 1);
-
+               ChessPosition right = new ChessPosition(r - 1, c + 1);
+               ChessPosition left = new ChessPosition(r - 1, c - 1);
+               if ((c < 8) && (c >= 0)) {
                    if ((board.getPiece(right) != null) && (board.getPiece(right).getTeamColor() != this.pieceColor)) {
                        ChessMove move = new ChessMove(myPosition, right, null);
                        moves.add(move);
-                   } else if ((board.getPiece(left) != null) && (board.getPiece(left).getTeamColor() != this.pieceColor)) {
+                   }
+               }
+               if ((c <= 8) && (c > 0)) {
+                   if ((board.getPiece(left) != null) && (board.getPiece(left).getTeamColor() != this.pieceColor)) {
                        ChessMove move = new ChessMove(myPosition, left, null);
                        moves.add(move);
                    }
                }
-           }
-       }
 
+           }
        }
 
         return moves;
