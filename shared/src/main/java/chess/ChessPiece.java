@@ -135,7 +135,7 @@ public class ChessPiece {
             int nR = r + m.get(0);
             int nC = c + m.get(1);
             if ((nR < 8) && (nC < 8)) {
-                if ((nR >= 0) && (nC >= 0)) {
+                if ((nR > 0) && (nC > 0)) {
                     ChessPosition pos = new ChessPosition(nR, nC);
                     if ((board.getPiece(pos) == null) || (board.getPiece(pos).getTeamColor() != this.pieceColor)){
                         ChessMove move = new ChessMove(myPosition, pos, null);
@@ -224,7 +224,7 @@ public class ChessPiece {
                        }
                    }
                }
-               if ((c <= 8) && (c > 0)) {
+               if ((c <= 8) && (c > 1)) {
                    if ((board.getPiece(left) != null) && (board.getPiece(left).getTeamColor() != this.pieceColor)) {
                        if (r == 7) {
                            for (PieceType piece : PieceType.values()) {
@@ -285,7 +285,7 @@ public class ChessPiece {
                        }
                    }
                }
-               if ((c <= 8) && (c > 0)) {
+               if ((c <= 8) && (c > 1)) {
                    if ((board.getPiece(left) != null) && (board.getPiece(left).getTeamColor() != this.pieceColor)) {
                        if (r == 2) {
                            for (PieceType piece : PieceType.values()) {
@@ -623,6 +623,49 @@ public class ChessPiece {
         return List.of();
     }
 
+    @Override
+    public String toString() {
+        if (this.pieceColor == ChessGame.TeamColor.WHITE){
+            if (this.type == PieceType.PAWN) {
+                return "P";
+            }
+            else if (this.type == PieceType.ROOK) {
+                return "R";
+            }
+            else if (this.type == PieceType.KNIGHT) {
+                return "N";
+            }
+            else if (this.type == PieceType.BISHOP) {
+                return "B";
+            }
+            else if (this.type == PieceType.QUEEN) {
+                return "Q";
+            }
+            else {
+                return "K";
+            }
+        }
+        else {
+            if (this.type == PieceType.PAWN) {
+                return "p";
+            }
+            else if (this.type == PieceType.ROOK) {
+                return "r";
+            }
+            else if (this.type == PieceType.KNIGHT) {
+                return "n";
+            }
+            else if (this.type == PieceType.BISHOP) {
+                return "b";
+            }
+            else if (this.type == PieceType.QUEEN) {
+                return "q";
+            }
+            else {
+                return "k";
+            }
+        }
+    }
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
