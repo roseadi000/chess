@@ -88,13 +88,14 @@ public class ChessGame {
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         this.startPosition = startPosition;
         ChessPiece piece = board.getPiece(startPosition);
-        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
-        List<ChessMove> validMoves = new ArrayList<>();
 
         if (piece == null) {
             return null;
         }
-        else {
+
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        List<ChessMove> validMoves = new ArrayList<>();
+
            for (ChessMove move : moves) {
                 this.newBoard = board.CopyBoard();
                 newBoard.addPiece(move.getEndPosition(), piece);
@@ -105,7 +106,6 @@ public class ChessGame {
                 }
             }
             return validMoves;
-        }
 
     }
 
@@ -122,9 +122,23 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> validMoves = validMoves(startPosition);
 
+        if (validMoves == null) {
+            throw new InvalidMoveException("No valid moves");
+        }
+        else if (piece.getTeamColor() != getTeamTurn()) {
+            throw new InvalidMoveException("Not your turn");
+        }
+
         if (validMoves.contains(move)) {
             board.addPiece(endPosition, piece);
             board.removePiece(startPosition);
+
+            if (getTeamTurn() == TeamColor.WHITE) {
+                setTeamTurn(TeamColor.BLACK);
+            }
+            else {
+                setTeamTurn(TeamColor.WHITE);
+            }
         }
         else {
             throw new InvalidMoveException("Not a valid move");
