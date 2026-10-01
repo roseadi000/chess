@@ -14,13 +14,14 @@ public class ChessGame {
     private ChessMove move;
     private TeamColor teamColor;
     private ChessBoard board;
+    private ChessBoard newBoard;
 
     private ChessPosition getKingPosition (TeamColor color) {
         for (int r = 1; r < 9; r++) {
             for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
-                if (board.getPiece(pos) != null) {
-                    if ((board.getPiece(pos).getTeamColor() == color) && (board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING)) {
+                if (newBoard.getPiece(pos) != null) {
+                    if ((newBoard.getPiece(pos).getTeamColor() == color) && (board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING)) {
                         return pos;
                     }
                 }
@@ -93,7 +94,7 @@ public class ChessGame {
         }
         else {
            for (ChessMove move : moves) {
-                ChessBoard newBoard = board.CopyBoard();
+                this.newBoard = board.CopyBoard();
                 newBoard.addPiece(move.getEndPosition(), piece);
                 newBoard.removePiece(startPosition);
 
