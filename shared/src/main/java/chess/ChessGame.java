@@ -94,6 +94,8 @@ public class ChessGame {
         }
         else {
             for (ChessMove move : moves) {
+                ChessBoard newBoard = board.CopyBoard();
+                newBoard.addPiece(move.getEndPosition(), piece);
 
                 if (isInCheck(piece.getTeamColor())) {
                     moves.remove(move);
