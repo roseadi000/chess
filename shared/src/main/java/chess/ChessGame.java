@@ -130,8 +130,15 @@ public class ChessGame {
         }
 
         if (validMoves.contains(move)) {
-            board.addPiece(endPosition, piece);
-            board.removePiece(startPosition);
+            if (move.getPromotionPiece() != null) {
+                ChessPiece promotionPiece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+                board.addPiece(endPosition, promotionPiece);
+                board.removePiece(startPosition);
+            }
+            else {
+                board.addPiece(endPosition, piece);
+                board.removePiece(startPosition);
+            }
 
             if (getTeamTurn() == TeamColor.WHITE) {
                 setTeamTurn(TeamColor.BLACK);
