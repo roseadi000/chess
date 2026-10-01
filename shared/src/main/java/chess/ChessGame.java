@@ -93,6 +93,12 @@ public class ChessGame {
             return null;
         }
         else {
+            for (ChessMove move : moves) {
+
+                if (isInCheck(piece.getTeamColor())) {
+                    moves.remove(move);
+                }
+            }
             return List.of();
         }
 

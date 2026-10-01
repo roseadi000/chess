@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
@@ -89,6 +91,19 @@ public class ChessBoard {
     public void resetBoard() {
         addPawns();
         addOtherPieces();
+    }
+
+    public ChessBoard CopyBoard() {
+        ChessBoard newBoard = new ChessBoard();
+
+        for (int r = 1; r < 8; r++) {
+            for (int c = 1; c < 8; c++) {
+                ChessPosition pos = new ChessPosition(r, c);
+                newBoard.addPiece(pos, pieces[r][c]);
+            }
+        }
+
+        return newBoard;
     }
 
     @Override
