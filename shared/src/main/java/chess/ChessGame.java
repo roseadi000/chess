@@ -21,7 +21,7 @@ public class ChessGame {
             for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
                 if (newBoard.getPiece(pos) != null) {
-                    if ((newBoard.getPiece(pos).getTeamColor() == color) && (board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING)) {
+                    if ((newBoard.getPiece(pos).getTeamColor() == color) && (newBoard.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING)) {
                         return pos;
                     }
                 }
