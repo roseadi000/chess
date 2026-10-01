@@ -1,8 +1,6 @@
 package chess;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * A class that can manage a chess game, making moves on a board
@@ -18,8 +16,8 @@ public class ChessGame {
     private ChessBoard board;
 
     private ChessPosition getKingPosition (TeamColor color) {
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
+        for (int r = 1; r < 9; r++) {
+            for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
                 if (board.getPiece(pos) != null) {
                     if ((board.getPiece(pos).getTeamColor() == color) && (board.getPiece(pos).getPieceType() == ChessPiece.PieceType.KING)) {
@@ -32,8 +30,8 @@ public class ChessGame {
     }
 
     private boolean checkOpponentPositions (ChessPosition kingPosition, TeamColor kingColor) {
-        for (int r = 0; r < 8; r++) {
-            for (int c = 0; c < 8; c++) {
+        for (int r = 1; r < 8; r++) {
+            for (int c = 1; c < 8; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
                 ChessPiece piece = board.getPiece(pos);
                 if ((piece != null) && (piece.getTeamColor() != kingColor)) {
@@ -88,20 +86,22 @@ public class ChessGame {
         this.startPosition = startPosition;
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        List<ChessMove> validMoves = new ArrayList<>();
 
         if (piece == null) {
             return null;
         }
         else {
-            for (ChessMove move : moves) {
+           for (ChessMove move : moves) {
                 ChessBoard newBoard = board.CopyBoard();
                 newBoard.addPiece(move.getEndPosition(), piece);
+                newBoard.removePiece(startPosition);
 
-                if (isInCheck(piece.getTeamColor())) {
-                    moves.remove(move);
+                if (!isInCheck(piece.getTeamColor())) {
+                    validMoves.add(move);
                 }
             }
-            return List.of();
+            return validMoves;
         }
 
     }

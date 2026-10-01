@@ -100,10 +100,10 @@ public class ChessBoard {
     public ChessBoard CopyBoard() {
         ChessBoard newBoard = new ChessBoard();
 
-        for (int r = 1; r < 8; r++) {
-            for (int c = 1; c < 8; c++) {
+        for (int r = 1; r < 9; r++) {
+            for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
-                newBoard.addPiece(pos, pieces[r][c]);
+                newBoard.addPiece(pos, pieces[r - 1][c - 1]);
             }
         }
 
