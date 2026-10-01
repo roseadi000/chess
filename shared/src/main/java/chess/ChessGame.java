@@ -204,18 +204,17 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return team == chessGame.team;
+        return team == chessGame.team && Objects.equals(startPosition, chessGame.startPosition) && Objects.equals(move, chessGame.move) && teamColor == chessGame.teamColor && Objects.equals(board, chessGame.board) && Objects.equals(newBoard, chessGame.newBoard);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(team);
+        return Objects.hash(team, startPosition, move, teamColor, board, newBoard);
     }
 }
