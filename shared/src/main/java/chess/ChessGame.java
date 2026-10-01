@@ -31,15 +31,17 @@ public class ChessGame {
     }
 
     private boolean checkOpponentPositions (ChessPosition kingPosition, TeamColor kingColor) {
-        for (int r = 1; r < 8; r++) {
-            for (int c = 1; c < 8; c++) {
+        for (int r = 1; r < 9; r++) {
+            for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
-                ChessPiece piece = board.getPiece(pos);
-                if ((piece != null) && (piece.getTeamColor() != kingColor)) {
-                    Collection<ChessMove> moves = piece.pieceMoves(board, pos);
-                    for (ChessMove move : moves) {
-                        if (move.getEndPosition().equals(kingPosition)) {
-                            return true;
+                ChessPiece piece = newBoard.getPiece(pos);
+                if (piece != null) {
+                    if (piece.getTeamColor() != kingColor) {
+                        Collection<ChessMove> moves = piece.pieceMoves(newBoard, pos);
+                        for (ChessMove move : moves) {
+                            if (move.getEndPosition().equals(kingPosition)) {
+                                return true;
+                            }
                         }
                     }
                 }
