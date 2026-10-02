@@ -97,7 +97,7 @@ public class ChessBoard {
         addOtherPieces();
     }
 
-    public ChessBoard CopyBoard() {
+    public ChessBoard copyBoard() {
         ChessBoard newBoard = new ChessBoard();
 
         for (int r = 1; r < 9; r++) {
