@@ -107,6 +107,7 @@ public class ChessGame {
                     validMoves.add(move);
                 }
             }
+           newBoard = board.copyBoard();
             return validMoves;
 
     }
@@ -204,7 +205,29 @@ public class ChessGame {
      */
     public boolean isInStalemate(TeamColor teamColor) {
         this.teamColor = teamColor;
-        throw new RuntimeException("Not implemented");
+
+        for (int r = 1; r < 9; r++) {
+            for (int c = 1; c < 9; c++) {
+                ChessPosition pos = new ChessPosition(r, c);
+                ChessPiece piece = board.getPiece(pos);
+                if (piece != null) {
+                    if (piece.getTeamColor() == teamColor) {
+                        Collection<ChessMove> validMoves = validMoves(pos);
+
+                        if (isInCheck(teamColor)) {
+                            return false;
+                        }
+                        else {
+                            if (validMoves.size() > 0) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
