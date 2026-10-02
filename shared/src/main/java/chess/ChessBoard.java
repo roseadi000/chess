@@ -60,7 +60,7 @@ public class ChessBoard {
     }
 
     public ChessBoard() {
-
+        this.resetBoard();
     }
 
     /**

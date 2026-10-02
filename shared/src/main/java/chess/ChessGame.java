@@ -51,7 +51,8 @@ public class ChessGame {
     }
 
     public ChessGame() {
-
+        this.board = new ChessBoard();
+        this.team = TeamColor.WHITE;
     }
 
     /**
