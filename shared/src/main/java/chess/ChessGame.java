@@ -14,7 +14,6 @@ public class ChessGame {
     private ChessMove move;
     private TeamColor teamColor;
     private ChessBoard board;
-    private ChessBoard newBoard;
 
     private ChessPosition getKingPosition (TeamColor color, ChessBoard board) {
         for (int r = 1; r < 9; r++) {
@@ -98,16 +97,21 @@ public class ChessGame {
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
         List<ChessMove> validMoves = new ArrayList<>();
 
-           for (ChessMove move : moves) {
-                this.newBoard = board.copyBoard();
+
+        for (ChessMove move : moves) {
+            ChessBoard gameBoard = board;
+            ChessBoard newBoard = board.copyBoard();
                 newBoard.addPiece(move.getEndPosition(), piece);
                 newBoard.removePiece(startPosition);
+
+                board = newBoard;
 
                 if (!isInCheck(piece.getTeamColor())) {
                     validMoves.add(move);
                 }
-            }
-           newBoard = board.copyBoard();
+            board = gameBoard;
+
+        }
             return validMoves;
 
     }
@@ -163,8 +167,8 @@ public class ChessGame {
      */
     public boolean isInCheck(TeamColor teamColor) {
         this.teamColor = teamColor;
-        ChessPosition kingPosition = getKingPosition(teamColor, newBoard);
-        return checkOpponentPositions(kingPosition, teamColor, newBoard);
+        ChessPosition kingPosition = getKingPosition(teamColor, board);
+        return checkOpponentPositions(kingPosition, teamColor, board);
     }
 
     /**
@@ -237,7 +241,6 @@ public class ChessGame {
      */
     public void setBoard(ChessBoard board) {
         this.board = board;
-        this.newBoard = board.copyBoard();
     }
 
     /**
@@ -248,17 +251,18 @@ public class ChessGame {
     public ChessBoard getBoard() {
         return board;
     }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return team == chessGame.team && Objects.equals(startPosition, chessGame.startPosition) && Objects.equals(move, chessGame.move) && teamColor == chessGame.teamColor && Objects.equals(board, chessGame.board) && Objects.equals(newBoard, chessGame.newBoard);
+        return team == chessGame.team && Objects.equals(startPosition, chessGame.startPosition) && Objects.equals(move, chessGame.move) && teamColor == chessGame.teamColor && Objects.equals(board, chessGame.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(team, startPosition, move, teamColor, board, newBoard);
+        return Objects.hash(team, startPosition, move, teamColor, board);
     }
 }
