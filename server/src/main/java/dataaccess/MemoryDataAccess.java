@@ -1,9 +1,13 @@
 package dataaccess;
 
-import kotlin.NotImplementedError;
 import model.UserData;
 
-public class UserMemoryDAO implements UserDAO{
+import java.util.HashMap;
+import java.util.Map;
+
+public class MemoryDataAccess implements DataAccess{
+
+    private Map<String, UserData> users = new HashMap<>();
 
     @Override
     public void createUser(String username, String password, String email) {
