@@ -7,6 +7,7 @@ import java.util.Map;
 
 public class MemoryDataAccess implements DataAccess{
 
+    //username, userData
     private Map<String, UserData> users = new HashMap<>();
 
     @Override
@@ -16,6 +17,11 @@ public class MemoryDataAccess implements DataAccess{
 
     @Override
     public UserData getUser(String username) {
+        throw new RuntimeException("Not implemented");
+    }
+
+    @Override
+    public void clear() {
         throw new RuntimeException("Not implemented");
     }
 }
