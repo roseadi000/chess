@@ -1,5 +1,6 @@
 package dataaccess;
 
+import kotlin.NotImplementedError;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -12,6 +13,7 @@ public class MemoryDataAccess implements DataAccess{
 
     private Map<String, UserData> users = new HashMap<>();
     private Map<String, AuthData> auths = new HashMap<>();
+    private Map<Integer, GameData> games = new HashMap<>();
 
     @Override
     public void createUser(UserData userData) {
@@ -35,18 +37,23 @@ public class MemoryDataAccess implements DataAccess{
     }
 
     @Override
-    public List<GameData> getGamesList(){
-        return List.of();
+    public Map<Integer, GameData> getGamesList(){
+        return games;
     }
 
     @Override
-    public void createGame(String gameName){
-        System.out.println("Create");
+    public void createGame(GameData gameData){
+        games.put(gameData.gameID(), gameData);
     }
 
     @Override
-    public void joinGame(String gameID){
-        System.out.println("Join");
+    public GameData getGame(Integer gameID){
+        return games.get(gameID);
+    }
+
+    @Override
+    public void updateGame(GameData updatedGame){
+        games.replace(updatedGame.gameID(), updatedGame);
     }
 
     @Override

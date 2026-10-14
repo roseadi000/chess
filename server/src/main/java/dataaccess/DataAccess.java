@@ -5,6 +5,7 @@ import model.GameData;
 import model.UserData;
 
 import java.util.List;
+import java.util.Map;
 
 public interface DataAccess {
     void createUser(UserData userData);
@@ -14,9 +15,10 @@ public interface DataAccess {
     AuthData getAuth(String authToken);
     void deleteAuth(String authToken);
 
-    List<GameData> getGamesList();
-    void createGame(String gameName);
-    void joinGame(String gameID);
+    Map<Integer, GameData> getGamesList();
+    void createGame(GameData gameData);
+    GameData getGame(Integer gameID);
+    void updateGame(GameData updatedGame);
 
 
     void clear();
