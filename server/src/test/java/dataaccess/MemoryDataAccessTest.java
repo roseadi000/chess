@@ -133,13 +133,11 @@ class MemoryDataAccessTest {
         Map<Integer, GameData> listGames = Map.of(1, newGame);
         assertEquals(listGames, da.getGamesList());
 
-        GameData joinedGame = createGame(da,1, "Rex", "Fives", "501st", newChessGame);
+        GameData joinedGame = new GameData(1, "Rex", "Fives", "501st", newChessGame);
+        da.updateGame(joinedGame);
         Map<Integer, GameData> joinedListGames = Map.of(1, joinedGame);
 
         assertEquals(joinedListGames, da.getGamesList());
-
-
-
     }
 
     @Test
