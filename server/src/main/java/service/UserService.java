@@ -17,7 +17,7 @@ public class UserService {
         this.da = da;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) {
+    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
         if (da.getUser(registerRequest.username()) == null){
             UserData user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
             da.createUser(user);
@@ -29,7 +29,7 @@ public class UserService {
             return new RegisterResult(registerRequest.username(), authToken);
         }
         else {
-            throw new RuntimeException("Not implemented"); //AlreadyTakenException
+            throw new DataAccessException("Not implemented"); //AlreadyTakenException
         }
     }
 

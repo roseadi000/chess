@@ -19,6 +19,7 @@ class UserServiceTest {
 
     @Test
     void register() {
+        try {
             DataAccess da = new MemoryDataAccess();
             UserService userService = new UserService(da);
             RegisterRequest registerRequest = new RegisterRequest("rex@501st.com", "Rex", "forTheRepublic");
@@ -26,6 +27,21 @@ class UserServiceTest {
             RegisterResult registerResultExpected = new RegisterResult("Rex", registerResult.authToken()); //change authToken later
 
             assertEquals(registerResultExpected, registerResult);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Test
+    void registerThrowsError() {
+            DataAccess da = new MemoryDataAccess();
+            UserService userService = new UserService(da);
+            UserData currentUser = new UserData("Rex", "forTheRepublic", "rex@501st.com");
+            da.createUser(currentUser);
+            RegisterRequest registerRequest = new RegisterRequest("rex@501st.com", "Rex", "forTheRepublic");
+
+            assertThrows(DataAccessException.class, () -> {
+                RegisterResult registerResult = userService.register(registerRequest);
+            });
     }
 
     @Test
