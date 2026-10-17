@@ -87,7 +87,7 @@ class UserServiceTest {
         UserService userService = new UserService(da);
         UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
         da.createUser(user);
-        AuthData auth = new AuthData("Rex", "123456");
+        AuthData auth = new AuthData("123456", "Rex");
         da.createAuth(auth);
 
         LogoutRequest logoutRequest = new LogoutRequest(auth.authToken());
@@ -105,7 +105,7 @@ class UserServiceTest {
         UserService userService = new UserService(da);
         UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
         da.createUser(user);
-        AuthData auth = new AuthData("Rex", "123456");
+        AuthData auth = new AuthData("123456", "Rex");
         da.createAuth(auth);
 
         LogoutRequest logoutRequest = new LogoutRequest("12");

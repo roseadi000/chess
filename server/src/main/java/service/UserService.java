@@ -25,7 +25,7 @@ public class UserService {
             da.createUser(user);
 
             String authToken = generateToken();
-            AuthData auth = new AuthData(registerRequest.username(), authToken);
+            AuthData auth = new AuthData(authToken, registerRequest.username());
             da.createAuth(auth);
 
             return new RegisterResult(registerRequest.username(), authToken);
@@ -39,7 +39,7 @@ public class UserService {
         if(da.getUser(loginRequest.username()) != null){
             if(da.getUser(loginRequest.username()).password().equals(loginRequest.password())){
                 String authToken = generateToken();
-                AuthData auth = new AuthData(loginRequest.username(), authToken);
+                AuthData auth = new AuthData(authToken, loginRequest.username());
                 da.createAuth(auth);
 
                 return new LoginResult(loginRequest.username(), authToken);
