@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import request.LoginRequest;
 import request.LogoutRequest;
@@ -29,11 +30,9 @@ class UserServiceTest {
     }
     @Test
     void registerThrowsError() {
-            DataAccess da = new MemoryDataAccess();
-            UserService userService = new UserService(da);
-            UserData currentUser = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-            da.createUser(currentUser);
-            RegisterRequest registerRequest = new RegisterRequest("rex@501st.com", "Rex", "forTheRepublic");
+        DataAccess da = new MemoryDataAccess();
+        UserService userService = createUserService(da);
+        RegisterRequest registerRequest = new RegisterRequest("rex@501st.com", "Rex", "forTheRepublic");
 
             assertThrows(AlreadyTakenException.class, () -> {
                 userService.register(registerRequest);
@@ -44,9 +43,7 @@ class UserServiceTest {
     void login() {
         assertDoesNotThrow(() -> {
         DataAccess da = new MemoryDataAccess();
-        UserService userService = new UserService(da);
-        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        da.createUser(user);
+        UserService userService = createUserService(da);
 
         LoginRequest loginRequest = new LoginRequest("Rex", "forTheRepublic");
         LoginResult loginResult = userService.login(loginRequest);
@@ -58,36 +55,38 @@ class UserServiceTest {
 
     @Test
     void loginUsernameNotFound() {
-            DataAccess da = new MemoryDataAccess();
-            UserService userService = new UserService(da);
-            UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-            da.createUser(user);
+        DataAccess da = new MemoryDataAccess();
+        UserService userService = createUserService(da);
 
-            LoginRequest loginRequest = new LoginRequest("Cody", "forTheRepublic");
+        LoginRequest loginRequest = new LoginRequest("Cody", "forTheRepublic");
 
-            assertThrows(IncorrectLoginException.class, () -> {userService.login(loginRequest);});
+        assertThrows(IncorrectLoginException.class, () -> {userService.login(loginRequest);});
     }
 
     @Test
     void loginIncorrectPassword() {
         DataAccess da = new MemoryDataAccess();
-        UserService userService = new UserService(da);
-        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        da.createUser(user);
+        UserService userService = createUserService(da);
 
         LoginRequest loginRequest = new LoginRequest("Rex", "forTheRepublix");
 
         assertThrows(IncorrectLoginException.class, () -> {userService.login(loginRequest);});
     }
 
+    @NotNull
+    private static UserService createUserService(DataAccess da) {
+        UserService userService = new UserService(da);
+        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
+        da.createUser(user);
+        return userService;
+    }
+
     @Test
     void logout() {
         assertDoesNotThrow(() -> {
         DataAccess da = new MemoryDataAccess();
-        UserService userService = new UserService(da);
-        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        da.createUser(user);
-        AuthData auth = new AuthData("123456", "Rex");
+            UserService userService = createUserService(da);
+            AuthData auth = new AuthData("123456", "Rex");
         da.createAuth(auth);
 
         LogoutRequest logoutRequest = new LogoutRequest(auth.authToken());
@@ -102,9 +101,7 @@ class UserServiceTest {
     @Test
     void logoutInvalidAuth() {
         DataAccess da = new MemoryDataAccess();
-        UserService userService = new UserService(da);
-        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        da.createUser(user);
+        UserService userService = createUserService(da);
         AuthData auth = new AuthData("123456", "Rex");
         da.createAuth(auth);
 

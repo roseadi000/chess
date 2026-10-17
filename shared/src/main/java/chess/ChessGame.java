@@ -258,7 +258,9 @@ public class ChessGame {
             return false;
         }
         ChessGame chessGame = (ChessGame) o;
-        return team == chessGame.team && Objects.equals(startPosition, chessGame.startPosition) && Objects.equals(move, chessGame.move) && teamColor == chessGame.teamColor && Objects.equals(board, chessGame.board);
+        return team == chessGame.team && Objects.equals(startPosition, chessGame.startPosition) &&
+                Objects.equals(move, chessGame.move) && teamColor == chessGame.teamColor &&
+                Objects.equals(board, chessGame.board);
     }
 
     @Override

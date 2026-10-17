@@ -66,24 +66,7 @@ public class ChessPiece {
         //row-- col++
         j = myPosition.getColumn() + 1;
         for (int i = myPosition.getRow() - 1; i > 0; i--) {
-            if (j > 8){
-                break;
-            }
-
-            ChessPosition pos = new ChessPosition(i, j);
-            if (board.getPiece(pos) == null) {
-                ChessMove move = new ChessMove(myPosition, pos, null);
-                moves.add(move);
-            }
-            else if (board.getPiece(pos).getTeamColor() != this.pieceColor) {
-                ChessMove move = new ChessMove(myPosition, pos, null);
-                moves.add(move);
-                break;
-            }
-            else {
-                break;
-            }
-            j++;
+            
         }
 
         //row-- col--
@@ -283,7 +266,7 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> PawnMoves(ChessBoard board, ChessPosition myPosition) {
+    private Collection<ChessMove> pawnMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
 
         int r = myPosition.getRow();
@@ -434,7 +417,7 @@ public class ChessPiece {
             return knightMoves(board, myPosition);
         }
         else if (piece.getPieceType() == PieceType.PAWN) {
-            return PawnMoves(board, myPosition);
+            return pawnMoves(board, myPosition);
         }
         else if (piece.getPieceType() == PieceType.QUEEN) {
             return queenMoves(board, myPosition);
