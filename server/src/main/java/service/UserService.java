@@ -1,7 +1,9 @@
 package service;
 
+import dataaccess.AlreadyTakenException;
 import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
+import dataaccess.IncorrectLoginException;
+import dataaccess.InvalidAuthException;
 import model.AuthData;
 import model.UserData;
 import request.LoginRequest;
@@ -17,7 +19,7 @@ public class UserService {
         this.da = da;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws DataAccessException {
+    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException {
         if (da.getUser(registerRequest.username()) == null){
             UserData user = new UserData(registerRequest.username(), registerRequest.password(), registerRequest.email());
             da.createUser(user);
@@ -29,11 +31,11 @@ public class UserService {
             return new RegisterResult(registerRequest.username(), authToken);
         }
         else {
-            throw new DataAccessException("Not implemented"); //AlreadyTakenException
+            throw new AlreadyTakenException("The username is already in use");
         }
     }
 
-    public LoginResult login(LoginRequest loginRequest){
+    public LoginResult login(LoginRequest loginRequest) throws IncorrectLoginException {
         if(da.getUser(loginRequest.username()) != null){
             if(da.getUser(loginRequest.username()).password().equals(loginRequest.password())){
                 String authToken = generateToken();
@@ -42,24 +44,18 @@ public class UserService {
 
                 return new LoginResult(loginRequest.username(), authToken);
             }
-            else {
-                throw new RuntimeException("Not implemented"); //IncorrectPasswordException
-            }
         }
-        else{
-            throw new RuntimeException("Not implemented"); //UserNotFound
-
-        }
+        throw new IncorrectLoginException("The username or password was incorrect");
     }
 
-    public LogoutResult logout(LogoutRequest logoutrequest){
+    public LogoutResult logout(LogoutRequest logoutrequest) throws InvalidAuthException {
         if(da.getAuth(logoutrequest.authToken()) != null){
             da.deleteAuth(logoutrequest.authToken());
 
             return new LogoutResult();
         }
         else{
-            throw new RuntimeException("Not implemented"); //AuthNotFound
+            throw new InvalidAuthException("No Authorization Token found. Please log in");
         }
     }
 

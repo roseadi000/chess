@@ -1,8 +1,6 @@
 package service;
 
-import dataaccess.DataAccess;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
+import dataaccess.*;
 import model.AuthData;
 import model.UserData;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,7 @@ class UserServiceTest {
 
     @Test
     void register() {
-        try {
+        assertDoesNotThrow(() -> {
             DataAccess da = new MemoryDataAccess();
             UserService userService = new UserService(da);
             RegisterRequest registerRequest = new RegisterRequest("rex@501st.com", "Rex", "forTheRepublic");
@@ -27,9 +25,7 @@ class UserServiceTest {
             RegisterResult registerResultExpected = new RegisterResult("Rex", registerResult.authToken()); //change authToken later
 
             assertEquals(registerResultExpected, registerResult);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        });
     }
     @Test
     void registerThrowsError() {
@@ -39,13 +35,14 @@ class UserServiceTest {
             da.createUser(currentUser);
             RegisterRequest registerRequest = new RegisterRequest("rex@501st.com", "Rex", "forTheRepublic");
 
-            assertThrows(DataAccessException.class, () -> {
-                RegisterResult registerResult = userService.register(registerRequest);
+            assertThrows(AlreadyTakenException.class, () -> {
+                userService.register(registerRequest);
             });
     }
 
     @Test
     void login() {
+        assertDoesNotThrow(() -> {
         DataAccess da = new MemoryDataAccess();
         UserService userService = new UserService(da);
         UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
@@ -53,13 +50,39 @@ class UserServiceTest {
 
         LoginRequest loginRequest = new LoginRequest("Rex", "forTheRepublic");
         LoginResult loginResult = userService.login(loginRequest);
-        LoginResult loginResultExpected = new LoginResult("Rex", loginResult.authToken()); //replace authToken
+        LoginResult loginResultExpected = new LoginResult("Rex", loginResult.authToken());
 
         assertEquals(loginResultExpected, loginResult);
+        });
+    }
+
+    @Test
+    void loginUsernameNotFound() {
+            DataAccess da = new MemoryDataAccess();
+            UserService userService = new UserService(da);
+            UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
+            da.createUser(user);
+
+            LoginRequest loginRequest = new LoginRequest("Cody", "forTheRepublic");
+
+            assertThrows(IncorrectLoginException.class, () -> {userService.login(loginRequest);});
+    }
+
+    @Test
+    void loginIncorrectPassword() {
+        DataAccess da = new MemoryDataAccess();
+        UserService userService = new UserService(da);
+        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
+        da.createUser(user);
+
+        LoginRequest loginRequest = new LoginRequest("Rex", "forTheRepublix");
+
+        assertThrows(IncorrectLoginException.class, () -> {userService.login(loginRequest);});
     }
 
     @Test
     void logout() {
+        assertDoesNotThrow(() -> {
         DataAccess da = new MemoryDataAccess();
         UserService userService = new UserService(da);
         UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
@@ -72,6 +95,21 @@ class UserServiceTest {
         LogoutResult logoutResultExpected = new LogoutResult();
 
         assertEquals(logoutResultExpected, logoutResult);
+        });
 
     }
+
+    @Test
+    void logoutInvalidAuth() {
+        DataAccess da = new MemoryDataAccess();
+        UserService userService = new UserService(da);
+        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
+        da.createUser(user);
+        AuthData auth = new AuthData("Rex", "123456");
+        da.createAuth(auth);
+
+        LogoutRequest logoutRequest = new LogoutRequest("12");
+        assertThrows(InvalidAuthException.class, () -> {userService.logout(logoutRequest);});
+    }
 }
+
