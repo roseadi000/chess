@@ -1,8 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.DataAccess;
-import dataaccess.MemoryDataAccess;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -41,6 +40,19 @@ class GameServiceTest {
     }
 
     @Test
+    void listGamesInvalidAuth() {
+            DataAccess da = new MemoryDataAccess();
+
+            GameService gameService = new GameService(da);
+            ChessGame chessGame = new ChessGame();
+            GameData game = new GameData(1, "Rex", "Fives", "501st", chessGame);
+            da.createGame(game);
+
+            ListGamesRequest listGamesRequest = new ListGamesRequest("nope");
+            assertThrows(InvalidAuthException.class, () -> {gameService.listGames(listGamesRequest);});
+    }
+
+    @Test
     void createGame() {
         assertDoesNotThrow(() -> {
             DataAccess da = new MemoryDataAccess();
@@ -57,6 +69,19 @@ class GameServiceTest {
 
             assertEquals(listGamesResultExpected, createGameResult);
         });
+    }
+
+    @Test
+    void createGameInvalidAuth() {
+        DataAccess da = new MemoryDataAccess();
+
+        GameService gameService = new GameService(da);
+        ChessGame chessGame = new ChessGame();
+        int gameID = new Random(45).nextInt(10000);
+        GameData game = new GameData(gameID, null, null, "501st", chessGame);
+        CreateGameRequest createGameRequest = new CreateGameRequest("nope", "501st");
+
+        assertThrows(InvalidAuthException.class, () -> {gameService.createGame(createGameRequest);});
     }
 
     @Test
@@ -82,6 +107,70 @@ class GameServiceTest {
             ListGamesResult listGamesResultExpected = new ListGamesResult(Map.of(1, gameExpected));
 
             assertEquals(listGamesResultExpected, listGamesResult);
+        });
+    }
+
+    @Test
+    void joinGameInvalidAuth() {
+        DataAccess da = new MemoryDataAccess();
+        AuthData userAuth = createUser(da);
+
+        GameService gameService = new GameService(da);
+        ChessGame chessGame = new ChessGame();
+        GameData game = new GameData(1111, null, "Fives", "501st", chessGame);
+        da.createGame(game);
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest(userAuth.authToken(), "WHITE", 1);
+
+        assertThrows(GameNotFoundException.class, () -> {gameService.joinGame(joinGameRequest);
+        });
+    }
+
+    @Test
+    void joinGameInvalidGame() {
+        DataAccess da = new MemoryDataAccess();
+
+        GameService gameService = new GameService(da);
+        ChessGame chessGame = new ChessGame();
+        GameData game = new GameData(1, null, "Fives", "501st", chessGame);
+        da.createGame(game);
+        GameData gameExpected = new GameData(1, "Rex", "Fives", "501st", chessGame);
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest("nope", "WHITE", 1);
+
+        assertThrows(InvalidAuthException.class, () -> {gameService.joinGame(joinGameRequest);
+        });
+    }
+
+    @Test
+    void joinGameColorTaken() {
+        DataAccess da = new MemoryDataAccess();
+        AuthData userAuth = createUser(da);
+
+        GameService gameService = new GameService(da);
+        ChessGame chessGame = new ChessGame();
+        GameData game = new GameData(1, null, "Fives", "501st", chessGame);
+        da.createGame(game);
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest(userAuth.authToken(), "BLACK", 1);
+
+        assertThrows(ColorIsFullException.class, () -> {gameService.joinGame(joinGameRequest);
+        });
+    }
+
+    @Test
+    void joinGameInvalidColor() {
+        DataAccess da = new MemoryDataAccess();
+        AuthData userAuth = createUser(da);
+
+        GameService gameService = new GameService(da);
+        ChessGame chessGame = new ChessGame();
+        GameData game = new GameData(1, null, "Fives", "501st", chessGame);
+        da.createGame(game);
+
+        JoinGameRequest joinGameRequest = new JoinGameRequest(userAuth.authToken(), "YELLOW", 1);
+
+        assertThrows(InvalidColorException.class, () -> {gameService.joinGame(joinGameRequest);
         });
     }
 

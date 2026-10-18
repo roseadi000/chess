@@ -1,8 +1,7 @@
 package service;
 
 import chess.ChessGame;
-import dataaccess.DataAccess;
-import dataaccess.InvalidAuthException;
+import dataaccess.*;
 import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;
@@ -48,7 +47,7 @@ public class GameService {
         }
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws InvalidAuthException {
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws InvalidAuthException, GameNotFoundException, ColorIsFullException, InvalidColorException {
         AuthData auth = da.getAuth(joinGameRequest.authToken());
         if(auth != null) {
             GameData game = da.getGame(joinGameRequest.gameID());
@@ -60,7 +59,7 @@ public class GameService {
                 return new JoinGameResult();
             }
             else{
-                throw new InvalidAuthException("No game found"); //change
+                throw new GameNotFoundException("GameID not found");
             }
         }
         else {
@@ -68,18 +67,27 @@ public class GameService {
         }
     }
 
-    private GameData updateUsername(String username, String color, GameData game) {
+    private GameData updateUsername(String username, String color, GameData game) throws ColorIsFullException, InvalidColorException {
         String whiteUsername = game.whiteUsername();
         String blackUsername = game.blackUsername();
         if(color.equals("WHITE")){
             if (game.whiteUsername() == null){
                 whiteUsername = username;
             }
+            else{
+                throw new ColorIsFullException("Color is full. Please choose another color or game");
+            }
         }
         else if(color.equals("BLACK")){
             if (game.blackUsername() == null){
                 blackUsername = username;
             }
+            else{
+                throw new ColorIsFullException("Color is full. Please choose another color or game");
+            }
+        }
+        else{
+            throw new InvalidColorException("Please choose white or black");
         }
 
         return new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
