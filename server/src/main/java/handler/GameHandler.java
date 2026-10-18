@@ -5,6 +5,7 @@ import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.JoinGameRequestBody;
 import request.ListGamesRequest;
+import result.ErrorResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
 import service.GameService;
@@ -29,10 +30,12 @@ public class GameHandler {
             ListGamesResult listGamesResult = gameService.listGames(listGamesRequest);
             ctx.result(serializer.toJson(listGamesResult));
         } catch (InvalidAuthException e) {
-            ctx.result(serializer.toJson(e.getMessage()));
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
             ctx.status(401);
         } catch (Exception e) {
-            ctx.result(serializer.toJson(e.getMessage()));
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
             ctx.status(500);
         }
     }
@@ -46,10 +49,12 @@ public class GameHandler {
             ListGamesResult createGameResult = gameService.createGame(createGameRequest);
             ctx.result(serializer.toJson(createGameResult));
         } catch (InvalidAuthException e) {
-            ctx.result(serializer.toJson(e.getMessage()));
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
             ctx.status(401);
         } catch (Exception e) {
-            ctx.result(serializer.toJson(e.getMessage()));
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
             ctx.status(500);
         }
     }
@@ -64,16 +69,20 @@ public class GameHandler {
             JoinGameResult joinGameResult = gameService.joinGame(joinGameRequest);
             ctx.result(serializer.toJson(joinGameResult));
         } catch (InvalidAuthException e) {
-            ctx.result(serializer.toJson(e.getMessage()));
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
             ctx.status(401);
         } catch (GameNotFoundException | InvalidColorException e) {
-            ctx.result(serializer.toJson(e.getMessage()));
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
             ctx.status(400);
         } catch (ColorIsFullException e) {
-            ctx.result(serializer.toJson(e.getMessage()));
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
             ctx.status(403);
         } catch (Exception e) {
-            ctx.result(serializer.toJson(e.getMessage()));
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
             ctx.status(500);
         }
     }

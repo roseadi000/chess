@@ -3,11 +3,14 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.eclipse.jetty.server.Authentication;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
+import request.ClearRequest;
 import request.LoginRequest;
 import request.LogoutRequest;
 import request.RegisterRequest;
+import result.ClearResult;
 import result.LoginResult;
 import result.LogoutResult;
 import result.RegisterResult;
@@ -99,6 +102,18 @@ class UserServiceTest {
 
         LogoutRequest logoutRequest = new LogoutRequest("12");
         assertThrows(InvalidAuthException.class, () -> {userService.logout(logoutRequest);});
+    }
+
+    @Test
+    void clear() {
+        DataAccess da = new MemoryDataAccess();
+        UserService userService = createUserService(da);
+
+        ClearRequest clearRequest = new ClearRequest();
+        ClearResult clearResult = userService.clear(clearRequest);
+        ClearResult clearResultExpected = new ClearResult();
+
+        assertEquals(clearResultExpected, clearResult);
     }
 
     @NotNull
