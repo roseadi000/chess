@@ -73,14 +73,6 @@ class UserServiceTest {
         assertThrows(IncorrectLoginException.class, () -> {userService.login(loginRequest);});
     }
 
-    @NotNull
-    private static UserService createUserService(DataAccess da) {
-        UserService userService = new UserService(da);
-        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        da.createUser(user);
-        return userService;
-    }
-
     @Test
     void logout() {
         assertDoesNotThrow(() -> {
@@ -107,6 +99,14 @@ class UserServiceTest {
 
         LogoutRequest logoutRequest = new LogoutRequest("12");
         assertThrows(InvalidAuthException.class, () -> {userService.logout(logoutRequest);});
+    }
+
+    @NotNull
+    private static UserService createUserService(DataAccess da) {
+        UserService userService = new UserService(da);
+        UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
+        da.createUser(user);
+        return userService;
     }
 }
 

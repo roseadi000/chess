@@ -2,7 +2,7 @@ package result;
 
 import model.GameData;
 
-import java.util.List;
+import java.util.Map;
 
-public record ListGamesResult(List<GameData> games) {
+public record ListGamesResult(Map<Integer, GameData> games) {
 }
