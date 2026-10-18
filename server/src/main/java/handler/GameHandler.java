@@ -1,10 +1,7 @@
 package handler;
 
 import dataaccess.*;
-import request.CreateGameRequest;
-import request.JoinGameRequest;
-import request.JoinGameRequestBody;
-import request.ListGamesRequest;
+import request.*;
 import result.CreateGameResult;
 import result.ErrorResult;
 import result.JoinGameResult;
@@ -42,9 +39,9 @@ public class GameHandler {
     }
 
     public void createGameHandler(Context ctx){
-        String gameName = ctx.body();
+        CreateGameRequestBody gameName = serializer.fromJson(ctx.body(), CreateGameRequestBody.class);
         String authToken = ctx.header("authorization");
-        CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName);
+        CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName.gameName());
 
         try{
             CreateGameResult createGameResult = gameService.createGame(createGameRequest);
@@ -53,6 +50,10 @@ public class GameHandler {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
             ctx.result(serializer.toJson(errorResult));
             ctx.status(401);
+        } catch (FieldEmptyException e) {
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(400);
         } catch (Exception e) {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
             ctx.result(serializer.toJson(errorResult));

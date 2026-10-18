@@ -10,7 +10,10 @@ import request.ListGamesRequest;
 import result.CreateGameResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
+import result.ListGamesResultList;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -25,14 +28,18 @@ public class GameService {
     public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws InvalidAuthException {
         if (da.getAuth(listGamesRequest.authToken()) != null) {
             Map<Integer, GameData> games = da.getGamesList();
-            return new ListGamesResult(games);
+            return new ListGamesResult(getListGamesList(games));
         }
         else {
-            throw new InvalidAuthException("Please log in");
+            throw new InvalidAuthException("Error: Please log in");
         }
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws InvalidAuthException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws InvalidAuthException, FieldEmptyException {
+        if(createGameRequest.gameName() == null || createGameRequest.gameName().equals("{}")){
+            throw new FieldEmptyException("Error: game name cannot be empty");
+        }
+
         if (da.getAuth(createGameRequest.authToken()) != null) {
             int gameID = getGameID();
             ChessGame chessGame = new ChessGame();
@@ -44,7 +51,7 @@ public class GameService {
 
         }
         else {
-            throw new InvalidAuthException("Please log in");
+            throw new InvalidAuthException("Error: Please log in");
         }
     }
 
@@ -54,17 +61,17 @@ public class GameService {
             GameData game = da.getGame(joinGameRequest.gameID());
             if(game != null){
 
-                GameData updatedGame = updateUsername(auth.username() , joinGameRequest.playerColor() ,game);
+                GameData updatedGame = updateUsername(auth.username() , joinGameRequest.playerColor(), game);
                 da.updateGame(updatedGame);
 
                 return new JoinGameResult();
             }
             else{
-                throw new GameNotFoundException("GameID not found");
+                throw new GameNotFoundException("Error: GameID not found");
             }
         }
         else {
-            throw new InvalidAuthException("Please log in");
+            throw new InvalidAuthException("Error: Please log in");
         }
     }
 
@@ -76,7 +83,7 @@ public class GameService {
                 whiteUsername = username;
             }
             else{
-                throw new ColorIsFullException("Color is full. Please choose another color or game");
+                throw new ColorIsFullException("Error: Color is full. Please choose another color or game");
             }
         }
         else if(color.equals("BLACK")){
@@ -84,11 +91,11 @@ public class GameService {
                 blackUsername = username;
             }
             else{
-                throw new ColorIsFullException("Color is full. Please choose another color or game");
+                throw new ColorIsFullException("Error: Color is full. Please choose another color or game");
             }
         }
         else{
-            throw new InvalidColorException("Please choose white or black");
+            throw new InvalidColorException("Error: Please choose white or black");
         }
 
         return new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
@@ -102,6 +109,17 @@ public class GameService {
       else {
           return gameID;
       }
+    }
+
+    private List<ListGamesResultList> getListGamesList(Map<Integer, GameData> gameData){
+        List<ListGamesResultList> games = new ArrayList<>();
+
+        for(GameData game : gameData.values()){
+            ListGamesResultList gamesResult = new ListGamesResultList(game.gameID(), game.whiteUsername(), game.blackUsername(), game.gameName());
+            games.add(gamesResult);
+        }
+
+        return games;
     }
 
 }

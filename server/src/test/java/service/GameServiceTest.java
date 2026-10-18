@@ -12,6 +12,7 @@ import request.ListGamesRequest;
 import result.CreateGameResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
+import result.ListGamesResultList;
 
 import java.util.List;
 import java.util.Map;
@@ -32,9 +33,11 @@ class GameServiceTest {
             GameData game = new GameData(1, "Rex", "Fives", "501st", chessGame);
             da.createGame(game);
 
+            ListGamesResultList gameExpected = new ListGamesResultList(1, "Rex", "Fives", "501st");
+
             ListGamesRequest listGamesRequest = new ListGamesRequest(userAuth.authToken());
             ListGamesResult listGamesResult = gameService.listGames(listGamesRequest);
-            ListGamesResult listGamesResultExpected = new ListGamesResult(Map.of(1, game));
+            ListGamesResult listGamesResultExpected = new ListGamesResult(List.of(gameExpected));
 
             assertEquals(listGamesResultExpected, listGamesResult);
         });
@@ -60,9 +63,7 @@ class GameServiceTest {
             AuthData userAuth = createUser(da);
 
             GameService gameService = new GameService(da);
-            ChessGame chessGame = new ChessGame();
             int gameID = new Random(45).nextInt(10000);
-            GameData game = new GameData(gameID, null, null, "501st", chessGame);
             CreateGameRequest createGameRequest = new CreateGameRequest(userAuth.authToken(), "501st");
 
             CreateGameResult createGameResult = gameService.createGame(createGameRequest);
@@ -77,12 +78,20 @@ class GameServiceTest {
         DataAccess da = new MemoryDataAccess();
 
         GameService gameService = new GameService(da);
-        ChessGame chessGame = new ChessGame();
-        int gameID = new Random(45).nextInt(10000);
-        GameData game = new GameData(gameID, null, null, "501st", chessGame);
         CreateGameRequest createGameRequest = new CreateGameRequest("nope", "501st");
 
         assertThrows(InvalidAuthException.class, () -> {gameService.createGame(createGameRequest);});
+    }
+
+    @Test
+    void createGameNullGameName() {
+        DataAccess da = new MemoryDataAccess();
+        AuthData userAuth = createUser(da);
+
+        GameService gameService = new GameService(da);
+        CreateGameRequest createGameRequest = new CreateGameRequest(userAuth.authToken(), null);
+
+        assertThrows(FieldEmptyException.class, () -> {gameService.createGame(createGameRequest);});
     }
 
     @Test
@@ -95,7 +104,6 @@ class GameServiceTest {
             ChessGame chessGame = new ChessGame();
             GameData game = new GameData(1, null, "Fives", "501st", chessGame);
             da.createGame(game);
-            GameData gameExpected = new GameData(1, "Rex", "Fives", "501st", chessGame);
 
             JoinGameRequest joinGameRequest = new JoinGameRequest(userAuth.authToken(), "WHITE", 1);
             JoinGameResult joinGameResult = gameService.joinGame(joinGameRequest);
@@ -103,9 +111,11 @@ class GameServiceTest {
 
             assertEquals(joinGameResultExpected, joinGameResult);
 
+            ListGamesResultList gameExpected = new ListGamesResultList(1, "Rex", "Fives", "501st");
+
             ListGamesRequest listGamesRequest = new ListGamesRequest(userAuth.authToken());
             ListGamesResult listGamesResult = gameService.listGames(listGamesRequest);
-            ListGamesResult listGamesResultExpected = new ListGamesResult(Map.of(1, gameExpected));
+            ListGamesResult listGamesResultExpected = new ListGamesResult(List.of(gameExpected));
 
             assertEquals(listGamesResultExpected, listGamesResult);
         });
@@ -135,7 +145,6 @@ class GameServiceTest {
         ChessGame chessGame = new ChessGame();
         GameData game = new GameData(1, null, "Fives", "501st", chessGame);
         da.createGame(game);
-        GameData gameExpected = new GameData(1, "Rex", "Fives", "501st", chessGame);
 
         JoinGameRequest joinGameRequest = new JoinGameRequest("nope", "WHITE", 1);
 
