@@ -55,7 +55,11 @@ public class GameService {
         }
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws InvalidAuthException, GameNotFoundException, ColorIsFullException, InvalidColorException {
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws InvalidAuthException, GameNotFoundException, ColorIsFullException, InvalidColorException, FieldEmptyException {
+        if(joinGameRequest.playerColor() == null || joinGameRequest.playerColor().equals("")){
+            throw new FieldEmptyException("Error: color cannot be empty");
+        }
+
         AuthData auth = da.getAuth(joinGameRequest.authToken());
         if(auth != null) {
             GameData game = da.getGame(joinGameRequest.gameID());
@@ -102,7 +106,7 @@ public class GameService {
     }
 
     private Integer getGameID(){
-      Integer gameID = new Random(45).nextInt(10000);
+      Integer gameID = new Random().nextInt(10000);
       if (da.getGame(gameID) != null) {
           return getGameID();
       }

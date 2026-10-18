@@ -74,7 +74,7 @@ public class GameHandler {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
             ctx.result(serializer.toJson(errorResult));
             ctx.status(401);
-        } catch (GameNotFoundException | InvalidColorException e) {
+        } catch (GameNotFoundException | InvalidColorException | FieldEmptyException e) {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
             ctx.result(serializer.toJson(errorResult));
             ctx.status(400);

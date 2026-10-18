@@ -63,11 +63,10 @@ class GameServiceTest {
             AuthData userAuth = createUser(da);
 
             GameService gameService = new GameService(da);
-            int gameID = new Random(45).nextInt(10000);
             CreateGameRequest createGameRequest = new CreateGameRequest(userAuth.authToken(), "501st");
 
             CreateGameResult createGameResult = gameService.createGame(createGameRequest);
-            CreateGameResult createGameResultExpected = new CreateGameResult(gameID);
+            CreateGameResult createGameResultExpected = new CreateGameResult(createGameResult.gameID());
 
             assertEquals(createGameResultExpected, createGameResult);
         });
