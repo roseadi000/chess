@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.ListGamesRequest;
+import result.CreateGameResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
 
@@ -64,10 +65,10 @@ class GameServiceTest {
             GameData game = new GameData(gameID, null, null, "501st", chessGame);
             CreateGameRequest createGameRequest = new CreateGameRequest(userAuth.authToken(), "501st");
 
-            ListGamesResult createGameResult = gameService.createGame(createGameRequest);
-            ListGamesResult listGamesResultExpected = new ListGamesResult(Map.of(game.gameID(), game));
+            CreateGameResult createGameResult = gameService.createGame(createGameRequest);
+            CreateGameResult createGameResultExpected = new CreateGameResult(gameID);
 
-            assertEquals(listGamesResultExpected, createGameResult);
+            assertEquals(createGameResultExpected, createGameResult);
         });
     }
 

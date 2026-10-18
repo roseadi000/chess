@@ -7,6 +7,7 @@ import model.GameData;
 import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.ListGamesRequest;
+import result.CreateGameResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
 
@@ -31,7 +32,7 @@ public class GameService {
         }
     }
 
-    public ListGamesResult createGame(CreateGameRequest createGameRequest) throws InvalidAuthException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws InvalidAuthException {
         if (da.getAuth(createGameRequest.authToken()) != null) {
             int gameID = getGameID();
             ChessGame chessGame = new ChessGame();
@@ -39,7 +40,7 @@ public class GameService {
                     createGameRequest.gameName(), chessGame);
             da.createGame(gameData);
 
-            return new ListGamesResult(da.getGamesList());
+            return new CreateGameResult(gameID);
 
         }
         else {

@@ -5,6 +5,7 @@ import request.CreateGameRequest;
 import request.JoinGameRequest;
 import request.JoinGameRequestBody;
 import request.ListGamesRequest;
+import result.CreateGameResult;
 import result.ErrorResult;
 import result.JoinGameResult;
 import result.ListGamesResult;
@@ -46,7 +47,7 @@ public class GameHandler {
         CreateGameRequest createGameRequest = new CreateGameRequest(authToken, gameName);
 
         try{
-            ListGamesResult createGameResult = gameService.createGame(createGameRequest);
+            CreateGameResult createGameResult = gameService.createGame(createGameRequest);
             ctx.result(serializer.toJson(createGameResult));
         } catch (InvalidAuthException e) {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
