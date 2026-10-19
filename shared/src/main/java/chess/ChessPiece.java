@@ -66,7 +66,24 @@ public class ChessPiece {
         //row-- col++
         j = myPosition.getColumn() + 1;
         for (int i = myPosition.getRow() - 1; i > 0; i--) {
-            
+            if (j > 8){
+                break;
+            }
+
+            ChessPosition pos = new ChessPosition(i, j);
+            if (board.getPiece(pos) == null) {
+                ChessMove move = new ChessMove(myPosition, pos, null);
+                moves.add(move);
+            }
+            else if (board.getPiece(pos).getTeamColor() != this.pieceColor) {
+                ChessMove move = new ChessMove(myPosition, pos, null);
+                moves.add(move);
+                break;
+            }
+            else {
+                break;
+            }
+            j++;
         }
 
         //row-- col--
@@ -170,6 +187,25 @@ public class ChessPiece {
 
     }
 
+    private Collection<ChessMove> getMovesFromList(ChessBoard board, ChessPosition myPosition, List<List<Integer>> movements, int r, int c) {
+        List<ChessMove> moves = new ArrayList<>();
+
+        for (List<Integer> m : movements) {
+            int nR = r + m.get(0);
+            int nC = c + m.get(1);
+
+            if ((nR < 9) && (nR > 0)) {
+                if ((nC < 9) && (nC > 0)) {
+                    ChessPosition pos = new ChessPosition(nR, nC);
+                    if ((board.getPiece(pos) == null) || (board.getPiece(pos).getTeamColor() != this.pieceColor)) {
+                        ChessMove move = new ChessMove(myPosition, pos, null);
+                        moves.add(move);                    }
+                }
+            }
+        }
+        return moves;
+    }
+
     private Collection<ChessMove> pawnPromotion(ChessPosition myPosition, ChessPosition pos) {
         List<ChessMove> moves = new ArrayList<>();
 
@@ -220,23 +256,11 @@ public class ChessPiece {
         int r = myPosition.getRow();
         int c = myPosition.getColumn();
 
-        for (List<Integer> m : movements) {
-            int nR = r + m.get(0);
-            int nC = c + m.get(1);
-
-            if ((nR < 9) && (nR > 0)) {
-                if ((nC < 9) && (nC > 0)) {
-                    ChessPosition pos = new ChessPosition(nR, nC);
-                    if ((board.getPiece(pos) == null) || (board.getPiece(pos).getTeamColor() != this.pieceColor)) {
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        moves.add(move);
-                    }
-                }
-            }
-        }
+        moves.addAll(getMovesFromList(board, myPosition, movements, r, c));
 
         return moves;
     }
+
 
     private Collection<ChessMove> knightMoves(ChessBoard board, ChessPosition myPosition) {
         List<ChessMove> moves = new ArrayList<>();
@@ -248,20 +272,7 @@ public class ChessPiece {
         int r = myPosition.getRow();
         int c = myPosition.getColumn();
 
-        for (List<Integer> m : movements) {
-            int nR = r + m.get(0);
-            int nC = c + m.get(1);
-
-            if ((nR < 9) && (nR > 0)) {
-                if ((nC < 9) && (nC > 0)) {
-                    ChessPosition pos = new ChessPosition(nR, nC);
-                    if ((board.getPiece(pos) == null) || (board.getPiece(pos).getTeamColor() != this.pieceColor)) {
-                        ChessMove move = new ChessMove(myPosition, pos, null);
-                        moves.add(move);
-                    }
-                }
-            }
-        }
+        moves.addAll(getMovesFromList(board, myPosition, movements, r, c));
 
         return moves;
     }

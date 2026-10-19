@@ -55,7 +55,8 @@ public class GameService {
         }
     }
 
-    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws InvalidAuthException, GameNotFoundException, ColorIsFullException, InvalidColorException, FieldEmptyException {
+    public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws InvalidAuthException,
+            GameNotFoundException, ColorIsFullException, InvalidColorException, FieldEmptyException {
         if(joinGameRequest.playerColor() == null || joinGameRequest.playerColor().equals("")){
             throw new FieldEmptyException("Error: color cannot be empty");
         }

@@ -34,15 +34,37 @@ public class ChessGame {
             for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
                 ChessPiece piece = board.getPiece(pos);
-                if (piece != null) {
-                    if (piece.getTeamColor() != kingColor) {
-                        Collection<ChessMove> moves = piece.pieceMoves(board, pos);
-                        for (ChessMove move : moves) {
-                            if (move.getEndPosition().equals(kingPosition)) {
-                                return true;
-                            }
-                        }
+                if (checkIfPieceChecksKing(kingPosition, kingColor, board, piece, pos)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean checkIfPieceChecksKing(ChessPosition kingPosition, TeamColor kingColor, ChessBoard board, ChessPiece piece, ChessPosition pos) {
+        if (piece != null) {
+            if (piece.getTeamColor() != kingColor) {
+                Collection<ChessMove> moves = piece.pieceMoves(board, pos);
+                for (ChessMove move : moves) {
+                    if (move.getEndPosition().equals(kingPosition)) {
+                        return true;
                     }
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkForValidMoves(TeamColor teamColor, int r, int c) {
+        ChessPosition pos = new ChessPosition(r, c);
+        ChessPiece piece = board.getPiece(pos);
+        if (piece != null) {
+            if (piece.getTeamColor() == teamColor) {
+                Collection<ChessMove> validMoves = validMoves(pos);
+
+                if (validMoves.size() > 0) {
+                    return true;
                 }
             }
         }
@@ -182,16 +204,8 @@ public class ChessGame {
 
         for (int r = 1; r < 9; r++) {
             for (int c = 1; c < 9; c++) {
-                ChessPosition pos = new ChessPosition(r, c);
-                ChessPiece piece = board.getPiece(pos);
-                if (piece != null) {
-                    if (piece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(pos);
-
-                        if (validMoves.size() > 0) {
-                            return false;
-                        }
-                    }
+                if (checkForValidMoves(teamColor, r, c)) {
+                    return false;
                 }
             }
         }
