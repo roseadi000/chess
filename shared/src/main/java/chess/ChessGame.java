@@ -42,7 +42,9 @@ public class ChessGame {
         return false;
     }
 
-    private static boolean checkIfPieceChecksKing(ChessPosition kingPosition, TeamColor kingColor, ChessBoard board, ChessPiece piece, ChessPosition pos) {
+    private static boolean checkIfPieceChecksKing(
+            ChessPosition kingPosition, TeamColor kingColor,
+            ChessBoard board, ChessPiece piece, ChessPosition pos) {
         if (piece != null) {
             if (piece.getTeamColor() != kingColor) {
                 Collection<ChessMove> moves = piece.pieceMoves(board, pos);
@@ -65,6 +67,24 @@ public class ChessGame {
 
                 if (validMoves.size() > 0) {
                     return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private boolean checkForValidMove(TeamColor teamColor, ChessPiece piece, ChessPosition pos) {
+        if (piece != null) {
+            if (piece.getTeamColor() == teamColor) {
+                Collection<ChessMove> validMoves = validMoves(pos);
+
+                if (isInCheck(teamColor)) {
+                    return true;
+                }
+                else {
+                    if (validMoves.size() > 0) {
+                        return true;
+                    }
                 }
             }
         }
@@ -228,19 +248,8 @@ public class ChessGame {
             for (int c = 1; c < 9; c++) {
                 ChessPosition pos = new ChessPosition(r, c);
                 ChessPiece piece = board.getPiece(pos);
-                if (piece != null) {
-                    if (piece.getTeamColor() == teamColor) {
-                        Collection<ChessMove> validMoves = validMoves(pos);
-
-                        if (isInCheck(teamColor)) {
-                            return false;
-                        }
-                        else {
-                            if (validMoves.size() > 0) {
-                                return false;
-                            }
-                        }
-                    }
+                if (checkForValidMove(teamColor, piece, pos)) {
+                    return false;
                 }
             }
         }
