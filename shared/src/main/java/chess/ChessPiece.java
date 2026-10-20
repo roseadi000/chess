@@ -148,17 +148,19 @@ public class ChessPiece {
         return moves;
     }
 
-    private Collection<ChessMove> getPawnValidMoves(ChessBoard board, ChessPosition myPosition, Integer r, Integer c, Integer rUp, Integer rUpTwo, Integer s, Integer p){
+    private Collection<ChessMove> getPawnValidMoves(
+            ChessBoard board, ChessPosition myPosition, Integer row,
+            Integer col, Integer rowUp, Integer rowUpTwo, Integer start, Integer promotion){
         List<ChessMove> moves = new ArrayList<>();
 
-        ChessPosition pos = new ChessPosition(rUp, c);
+        ChessPosition pos = new ChessPosition(rowUp, col);
         if (board.getPiece(pos) == null) {
-            if (r.equals(p)) {
+            if (row.equals(promotion)) {
                 moves.addAll(pawnPromotion(myPosition, pos));
             }
             else {
-                if (r.equals(s)) {
-                    ChessPosition twoPos = new ChessPosition(rUpTwo, c);
+                if (row.equals(start)) {
+                    ChessPosition twoPos = new ChessPosition(rowUpTwo, col);
                     if (board.getPiece(twoPos) == null) {
                         ChessMove move = new ChessMove(myPosition, twoPos, null);
                         moves.add(move);
@@ -168,12 +170,12 @@ public class ChessPiece {
                 moves.add(move);
             }
         }
-        ChessPosition rightPos = new ChessPosition(rUp, c + 1);
-        ChessPosition leftPos = new ChessPosition(rUp, c -1);
+        ChessPosition rightPos = new ChessPosition(rowUp, col + 1);
+        ChessPosition leftPos = new ChessPosition(rowUp, col -1);
 
-        if ((c >= 0) && (c < 8)) {
+        if ((col >= 0) && (col < 8)) {
             if ((board.getPiece(rightPos) != null) && (board.getPiece(rightPos).getTeamColor() != this.pieceColor)) {
-                if (r.equals(p)) {
+                if (row.equals(promotion)) {
                     moves.addAll(pawnPromotion(myPosition, rightPos));
                 }
                 else{
@@ -182,9 +184,9 @@ public class ChessPiece {
                 }
             }
         }
-        if ((c > 1) && (c <= 8)) {
+        if ((col > 1) && (col <= 8)) {
             if ((board.getPiece(leftPos) != null) && (board.getPiece(leftPos).getTeamColor() != this.pieceColor)) {
-                if (r.equals(p)) {
+                if (row.equals(promotion)) {
                     moves.addAll(pawnPromotion(myPosition, leftPos));
                 }
                 else{
@@ -281,7 +283,7 @@ public class ChessPiece {
         else {
             if (r > 0) {
                 moves.addAll(getPawnValidMoves(board, myPosition, r, c, r - 1, r - 2, 7, 2));
-            }
+                }
         }
 
         return moves;
