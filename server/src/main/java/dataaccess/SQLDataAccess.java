@@ -4,6 +4,7 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -100,13 +101,17 @@ public class SQLDataAccess implements DataAccess{
 
     private void createTable(String statement) throws DataAccessException, SQLException {
         try(var conn = DatabaseManager.getConnection()) {
-            try(var createTableStatement = conn.prepareStatement(statement)){
-                createTableStatement.executeUpdate();
-            } catch (SQLException e) {
-                throw new SQLException(String.format("Unable to configure database: %s", e.getMessage()));
-            }
+            updateDatabase(statement, conn);
         } catch (DataAccessException e) {
             throw new DataAccessException("Error: Couldn't connect to the database");
+        }
+    }
+
+    private static void updateDatabase(String statement, Connection conn) throws SQLException {
+        try(var createTableStatement = conn.prepareStatement(statement)){
+            createTableStatement.executeUpdate();
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
         }
     }
 }
