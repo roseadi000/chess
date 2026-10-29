@@ -7,6 +7,7 @@ import model.UserData;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -77,7 +78,9 @@ class SQLDataAccessTest {
         assertDoesNotThrow(() -> {
         UserData newUser = createUser(da);
 
-        assertEquals(newUser, da.getUser(newUser.username()));
+        assertEquals(newUser.username(), da.getUser(newUser.username()).username());
+        assertTrue(BCrypt.checkpw(newUser.password(), da.getUser(newUser.username()).password()));
+        assertEquals(newUser.email(), da.getUser(newUser.username()).email());
 
         da.clear();
         });
@@ -85,11 +88,15 @@ class SQLDataAccessTest {
 
     @Test
     void getUserNotInList() {
+        assertDoesNotThrow(() -> {
         assertNull(da.getUser("Cody"));
+        });
     }
     @Test
     void getUserEmpty() {
+        assertDoesNotThrow(() -> {
         assertNull(da.getUser("Rex"));
+        });
     }
 
     @Test

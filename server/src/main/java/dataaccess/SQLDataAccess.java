@@ -3,8 +3,10 @@ package dataaccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +56,7 @@ public class SQLDataAccess implements DataAccess{
         try(var conn = DatabaseManager.getConnection()){
             if(sanitizeInput(userData.username(), inputTypes.USERNAME)){
                 if(sanitizeInput(userData.password(), inputTypes.PASSWORD)){
-                    String passwordHashed = "";
+                    String passwordHashed = hashPassword(userData.password());
                     if(sanitizeInput(userData.email(), inputTypes.EMAIL)){
                         var statement = "INSERT INTO users (username, password, email) VALUES(?, ?, ?)";
                         updateDatabase(statement, List.of(userData.username(), passwordHashed, userData.email()), conn);
@@ -67,19 +69,22 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public UserData getUser(String username) /*throws SQLException, DataAccessException*/ {
-        return new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        /*try(var conn = DatabaseManager.getConnection()){
+    public UserData getUser(String username) throws SQLException, DataAccessException {
+        try(var conn = DatabaseManager.getConnection()){
             if(sanitizeInput(username, inputTypes.USERNAME)){
                 var statement = "SELECT username, password, email FROM users WHERE username=?";
                 try(var getUserStatement = conn.prepareStatement(statement)){
                     getUserStatement.setString(1, username);
+                    try(var response = getUserStatement.executeQuery()){
+                        return readGetUser(response);
+                    }
                 }
 
             }
         } catch (SQLException e) {
             throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
-        }*/
+        }
+        return null;
     }
 
     @Override
@@ -180,5 +185,22 @@ public class SQLDataAccess implements DataAccess{
         else {
             return input.matches("\\w+@\\w+\\.\\w+");
         }
+    }
+
+    private String hashPassword(String password){
+        return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+
+    private UserData readGetUser(ResultSet result) throws SQLException {
+        String username = null;
+        String password = null;
+        String email = null;
+
+        while(result.next()) {
+            username = result.getString("username");
+            password = result.getString("password");
+            email = result.getString("email");
+        }
+        return new UserData(username, password, email);
     }
 }
