@@ -4,12 +4,13 @@ import model.AuthData;
 import model.GameData;
 import model.UserData;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 public interface DataAccess {
-    void createUser(UserData userData);
-    UserData getUser(String username);
+    void createUser(UserData userData) throws DataAccessException, SQLException;
+    UserData getUser(String username) throws SQLException, DataAccessException;
 
     void createAuth(AuthData authData);
     AuthData getAuth(String authToken);
@@ -21,5 +22,5 @@ public interface DataAccess {
     void updateGame(GameData updatedGame);
 
 
-    void clear();
+    void clear() throws DataAccessException, SQLException;
 }

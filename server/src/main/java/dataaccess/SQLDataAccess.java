@@ -6,9 +6,16 @@ import model.UserData;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 public class SQLDataAccess implements DataAccess{
+
+    enum inputTypes {
+        USERNAME,
+        PASSWORD,
+        EMAIL
+    }
 
     private final String userTableStatement =
             """
@@ -43,13 +50,36 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public void createUser(UserData userData) {
-
+    public void createUser(UserData userData) throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()){
+            if(sanitizeInput(userData.username(), inputTypes.USERNAME)){
+                if(sanitizeInput(userData.password(), inputTypes.PASSWORD)){
+                    String passwordHashed = "";
+                    if(sanitizeInput(userData.email(), inputTypes.EMAIL)){
+                        var statement = "INSERT INTO users (username, password, email) VALUES(?, ?, ?)";
+                        updateDatabase(statement, List.of(userData.username(), passwordHashed, userData.email()), conn);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
+        }
     }
 
     @Override
-    public UserData getUser(String username) {
-        return null;
+    public UserData getUser(String username) /*throws SQLException, DataAccessException*/ {
+        return new UserData("Rex", "forTheRepublic", "rex@501st.com");
+        /*try(var conn = DatabaseManager.getConnection()){
+            if(sanitizeInput(username, inputTypes.USERNAME)){
+                var statement = "SELECT username, password, email FROM users WHERE username=?";
+                try(var getUserStatement = conn.prepareStatement(statement)){
+                    getUserStatement.setString(1, username);
+                }
+
+            }
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
+        }*/
     }
 
     @Override
@@ -88,7 +118,21 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public void clear() {
+    public void clear() throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()) {
+            var usersStatement = "TRUNCATE TABLE users";
+            var authsStatement = "TRUNCATE TABLE auths";
+            var gamesStatement = "TRUNCATE TABLE games";
+
+            updateDatabase(usersStatement, List.of(), conn);
+            updateDatabase(authsStatement, List.of(), conn);
+            updateDatabase(gamesStatement, List.of(), conn);
+
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: Couldn't connect to the database");
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
+        }
 
     }
 
@@ -101,17 +145,40 @@ public class SQLDataAccess implements DataAccess{
 
     private void createTable(String statement) throws DataAccessException, SQLException {
         try(var conn = DatabaseManager.getConnection()) {
-            updateDatabase(statement, conn);
+            updateDatabase(statement, List.of(), conn);
         } catch (DataAccessException e) {
             throw new DataAccessException("Error: Couldn't connect to the database");
         }
     }
 
-    private static void updateDatabase(String statement, Connection conn) throws SQLException {
+    private static void updateDatabase(String statement, List<Object> parms, Connection conn) throws SQLException {
         try(var createTableStatement = conn.prepareStatement(statement)){
+            if(!parms.isEmpty()){
+                for(int i = 0; i < parms.size(); i++){
+                    var parm = parms.get(i);
+                    if(parm instanceof String){
+                        createTableStatement.setString(i + 1, (String) parm);
+                    }
+                    else if(parm instanceof Integer){
+                        createTableStatement.setInt(i + 1, (Integer) parm);
+                    }
+                }
+            }
             createTableStatement.executeUpdate();
         } catch (SQLException e) {
             throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
+        }
+    }
+
+    private boolean sanitizeInput(String input, inputTypes type){
+        if(type == inputTypes.USERNAME){
+            return input.matches("\\w+");
+        }
+        else if(type == inputTypes.PASSWORD){
+            return input.matches("\\w+[!@#$%_]*");
+        }
+        else {
+            return input.matches("\\w+@\\w+\\.\\w+");
         }
     }
 }

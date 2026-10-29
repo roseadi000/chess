@@ -15,6 +15,8 @@ import result.LoginResult;
 import result.LogoutResult;
 import result.RegisterResult;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
@@ -32,7 +34,7 @@ class UserServiceTest {
         });
     }
     @Test
-    void registerThrowsError() {
+    void registerThrowsError() throws SQLException, DataAccessException {
         DataAccess da = new MemoryDataAccess();
         UserService userService = createUserService(da);
         RegisterRequest registerRequest = new RegisterRequest("rex@501st.com", "Rex", "forTheRepublic");
@@ -106,6 +108,7 @@ class UserServiceTest {
 
     @Test
     void clear() {
+        assertDoesNotThrow(() -> {
         DataAccess da = new MemoryDataAccess();
         UserService userService = createUserService(da);
 
@@ -114,14 +117,18 @@ class UserServiceTest {
         ClearResult clearResultExpected = new ClearResult();
 
         assertEquals(clearResultExpected, clearResult);
+        });
     }
 
-    @NotNull
     private static UserService createUserService(DataAccess da) {
+        assertDoesNotThrow(() -> {
         UserService userService = new UserService(da);
         UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
         da.createUser(user);
         return userService;
+        });
+
+        return null;
     }
 }
 

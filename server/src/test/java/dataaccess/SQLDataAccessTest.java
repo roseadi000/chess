@@ -19,9 +19,12 @@ class SQLDataAccessTest {
 
     private UserData createUser(SQLDataAccess da){
         UserData newUser = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        da.createUser(newUser);
 
+        assertDoesNotThrow(() -> {
+        da.createUser(newUser);
+        });
         return newUser;
+
     }
     private AuthData createAuth(SQLDataAccess da){
         AuthData newAuth = new AuthData("123456", "Rex");
@@ -50,6 +53,7 @@ class SQLDataAccessTest {
 
     @Test
     void clear() {
+        assertDoesNotThrow(() -> {
         UserData newUser = createUser(da);
         assertEquals(newUser, da.getUser(newUser.username()));
 
@@ -65,15 +69,18 @@ class SQLDataAccessTest {
         assertNull(da.getUser(newUser.username()));
         assertNull(da.getAuth(newAuth.authToken()));
         assertNull(da.getGame(newGame.gameID()));
+        });
     }
 
     @Test
     void getUser() {
+        assertDoesNotThrow(() -> {
         UserData newUser = createUser(da);
 
         assertEquals(newUser, da.getUser(newUser.username()));
 
         da.clear();
+        });
     }
 
     @Test
@@ -87,11 +94,13 @@ class SQLDataAccessTest {
 
     @Test
     void getAuth() {
+        assertDoesNotThrow(() -> {
         AuthData newAuth = createAuth(da);
 
         assertEquals(newAuth, da.getAuth(newAuth.authToken()));
 
         da.clear();
+        });
     }
     @Test
     void getAuthNotInList() {
@@ -104,6 +113,7 @@ class SQLDataAccessTest {
 
     @Test
     void deleteAuth() {
+        assertDoesNotThrow(() -> {
         AuthData newAuth = createAuth(da);
         assertEquals(newAuth, da.getAuth(newAuth.authToken()));
 
@@ -111,25 +121,30 @@ class SQLDataAccessTest {
         assertNull(da.getAuth(newAuth.authToken()));
 
         da.clear();
+        });
     }
 
     @Test
     void getGame(){
+        assertDoesNotThrow(() -> {
         ChessGame newChessGame = new ChessGame();
         GameData newGame = createGame(da,1, "Rex", "Fives", "501st", newChessGame);
 
         assertEquals(newGame, da.getGame(newGame.gameID()));
 
         da.clear();
+        });
     }
     @Test
     void getGameNotInList(){
+        assertDoesNotThrow(() -> {
         ChessGame newChessGame = new ChessGame();
         GameData newGame = createGame(da,1, "Rex", "Fives", "501st", newChessGame);
 
         assertNull(da.getGame(2));
 
         da.clear();
+        });
     }
     @Test
     void getGameEmpty(){
@@ -138,6 +153,7 @@ class SQLDataAccessTest {
 
     @Test
     void getListGames(){
+        assertDoesNotThrow(() -> {
         ChessGame newChessGame = new ChessGame();
         GameData newGame = createGame(da,1, "Rex", "Fives", "501st", newChessGame);
         Map<Integer, GameData> listGames = Map.of(1, newGame);
@@ -145,18 +161,22 @@ class SQLDataAccessTest {
         assertEquals(listGames, da.getGamesList());
 
         da.clear();
+        });
     }
     @Test
     void getListGamesEmpty(){
+        assertDoesNotThrow(() -> {
         Map<Integer, GameData> listGames = Map.of();
 
         assertEquals(listGames, da.getGamesList());
 
         da.clear();
+        });
     }
 
     @Test
     void updateGame(){
+        assertDoesNotThrow(() -> {
         ChessGame newChessGame = new ChessGame();
         GameData newGame = createGame(da,1, "", "Fives", "501st", newChessGame);
         Map<Integer, GameData> listGames = Map.of(1, newGame);
@@ -169,5 +189,6 @@ class SQLDataAccessTest {
         assertEquals(joinedListGames, da.getGamesList());
 
         da.clear();
+        });
     }
 }
