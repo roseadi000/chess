@@ -159,8 +159,12 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public void updateGame(GameData updatedGame) {
-
+    public void updateGame(GameData updatedGame) throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, gameData=? WHERE gameID=?";
+                updateDatabase(statement, List.of( updatedGame.whiteUsername(),
+                        updatedGame.blackUsername(), updatedGame.game(), updatedGame.gameID()), conn);
+        }
     }
 
     @Override

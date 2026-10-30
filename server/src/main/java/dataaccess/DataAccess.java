@@ -19,7 +19,7 @@ public interface DataAccess {
     Map<Integer, GameData> getGamesList() throws DataAccessException, SQLException;
     void createGame(GameData gameData) throws DataAccessException, SQLException;
     GameData getGame(Integer gameID) throws DataAccessException, SQLException;
-    void updateGame(GameData updatedGame);
+    void updateGame(GameData updatedGame) throws DataAccessException, SQLException;
 
 
     void clear() throws DataAccessException, SQLException;
