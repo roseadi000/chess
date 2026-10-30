@@ -100,7 +100,9 @@ class UserServiceTest {
         DataAccess da = new MemoryDataAccess();
         UserService userService = createUserService(da);
         AuthData auth = new AuthData("123456", "Rex");
+        assertDoesNotThrow(() -> {
         da.createAuth(auth);
+        });
 
         LogoutRequest logoutRequest = new LogoutRequest("12");
         assertThrows(InvalidAuthException.class, () -> {userService.logout(logoutRequest);});

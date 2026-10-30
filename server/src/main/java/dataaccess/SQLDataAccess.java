@@ -88,18 +88,34 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public void createAuth(AuthData authData) {
-
+    public void createAuth(AuthData authData) throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()){
+            if(sanitizeInput(authData.username(), inputTypes.USERNAME)){
+                var statement = "INSERT INTO auths (authToken, username) VALUES(?, ?)";
+                updateDatabase(statement, List.of(authData.authToken(), authData.username()), conn);
+            }
+        }
     }
 
     @Override
-    public AuthData getAuth(String authToken) {
-        return null;
+    public AuthData getAuth(String authToken) throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT authToken, username FROM auths WHERE authToken=?";
+            try(var getAuthStatement = conn.prepareStatement(statement)){
+                getAuthStatement.setString(1, authToken);
+                try(var response = getAuthStatement.executeQuery()){
+                    return readGetAuth(response);
+                }
+            }
+        }
     }
 
     @Override
-    public void deleteAuth(String authToken) {
-
+    public void deleteAuth(String authToken) throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "DELETE FROM auths WHERE authToken=?";
+            updateDatabase(statement, List.of(authToken), conn);
+        }
     }
 
     @Override
@@ -201,6 +217,29 @@ public class SQLDataAccess implements DataAccess{
             password = result.getString("password");
             email = result.getString("email");
         }
-        return new UserData(username, password, email);
+
+        if(username != null) {
+            return new UserData(username, password, email);
+        }
+        else {
+            return null;
+        }
+    }
+
+    private AuthData readGetAuth(ResultSet result) throws SQLException {
+        String authToken = null;
+        String username = null;
+
+        while(result.next()) {
+            authToken = result.getString("authToken");
+            username = result.getString("username");
+        }
+
+        if(authToken != null) {
+            return new AuthData(authToken, username);
+        }
+        else {
+            return null;
+        }
     }
 }

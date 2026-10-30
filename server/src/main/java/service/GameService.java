@@ -12,6 +12,7 @@ import result.JoinGameResult;
 import result.ListGamesResult;
 import result.ListGamesResultList;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +26,7 @@ public class GameService {
         this.da = da;
     }
 
-    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws InvalidAuthException {
+    public ListGamesResult listGames(ListGamesRequest listGamesRequest) throws InvalidAuthException, SQLException, DataAccessException {
         if (da.getAuth(listGamesRequest.authToken()) != null) {
             Map<Integer, GameData> games = da.getGamesList();
             return new ListGamesResult(getListGamesList(games));
@@ -35,7 +36,7 @@ public class GameService {
         }
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws InvalidAuthException, FieldEmptyException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws InvalidAuthException, FieldEmptyException, SQLException, DataAccessException {
         if(createGameRequest.gameName() == null || createGameRequest.gameName().equals("{}")){
             throw new FieldEmptyException("Error: game name cannot be empty");
         }
@@ -56,7 +57,7 @@ public class GameService {
     }
 
     public JoinGameResult joinGame(JoinGameRequest joinGameRequest) throws InvalidAuthException,
-            GameNotFoundException, ColorIsFullException, InvalidColorException, FieldEmptyException {
+            GameNotFoundException, ColorIsFullException, InvalidColorException, FieldEmptyException, SQLException, DataAccessException {
         if(joinGameRequest.playerColor() == null || joinGameRequest.playerColor().equals("")){
             throw new FieldEmptyException("Error: color cannot be empty");
         }

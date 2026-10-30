@@ -29,7 +29,9 @@ class SQLDataAccessTest {
     }
     private AuthData createAuth(SQLDataAccess da){
         AuthData newAuth = new AuthData("123456", "Rex");
+        assertDoesNotThrow(() -> {
         da.createAuth(newAuth);
+        });
 
         return newAuth;
     }
@@ -111,11 +113,15 @@ class SQLDataAccessTest {
     }
     @Test
     void getAuthNotInList() {
+        assertDoesNotThrow(() -> {
         assertNull(da.getAuth("654320"));
+        });
     }
     @Test
     void getAuthEmpty() {
+        assertDoesNotThrow(() -> {
         assertNull(da.getAuth("123456"));
+        });
     }
 
     @Test

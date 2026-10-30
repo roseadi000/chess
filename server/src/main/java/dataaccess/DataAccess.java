@@ -12,9 +12,9 @@ public interface DataAccess {
     void createUser(UserData userData) throws DataAccessException, SQLException;
     UserData getUser(String username) throws SQLException, DataAccessException;
 
-    void createAuth(AuthData authData);
-    AuthData getAuth(String authToken);
-    void deleteAuth(String authToken);
+    void createAuth(AuthData authData) throws DataAccessException, SQLException;
+    AuthData getAuth(String authToken) throws DataAccessException, SQLException;
+    void deleteAuth(String authToken) throws DataAccessException, SQLException;
 
     Map<Integer, GameData> getGamesList();
     void createGame(GameData gameData);

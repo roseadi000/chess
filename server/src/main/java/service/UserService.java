@@ -54,7 +54,7 @@ public class UserService {
         throw new IncorrectLoginException("Error: The username or password was incorrect");
     }
 
-    public LogoutResult logout(LogoutRequest logoutrequest) throws InvalidAuthException {
+    public LogoutResult logout(LogoutRequest logoutrequest) throws InvalidAuthException, SQLException, DataAccessException {
         if(da.getAuth(logoutrequest.authToken()) != null){
             da.deleteAuth(logoutrequest.authToken());
 
