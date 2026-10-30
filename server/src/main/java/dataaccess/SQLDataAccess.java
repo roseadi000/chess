@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -122,8 +123,15 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public Map<Integer, GameData> getGamesList() {
-        return Map.of();
+    public Map<Integer, GameData> getGamesList() throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameData FROM games";
+            try(var getGameStatement = conn.prepareStatement(statement)){
+                try(var response = getGameStatement.executeQuery()){
+                    return readGetGamesList(response);
+                }
+            }
+        }
     }
 
     @Override
@@ -291,6 +299,34 @@ public class SQLDataAccess implements DataAccess{
         else {
             return null;
         }
+    }
+
+    private Map<Integer, GameData> readGetGamesList(ResultSet result) throws SQLException {
+        Map<Integer, GameData> games = new HashMap<>();
+
+        Integer gameID = null;
+        String whiteUsername = null;
+        String blackUsername = null;
+        String gameName = null;
+        String game = null;
+
+        while(result.next()) {
+            gameID = result.getInt("gameID");
+            whiteUsername = result.getString("whiteUsername");
+            blackUsername = result.getString("blackUsername");
+            gameName = result.getString("gameName");
+            game = result.getString("gameData");
+
+            if(gameID != null) {
+                ChessGame chessGame = new Gson().fromJson(game, ChessGame.class);
+                GameData gameData = new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
+                games.put(gameID, gameData);
+            }
+        }
+
+        return games;
+
+
     }
 }
 
