@@ -14,6 +14,7 @@ import result.JoinGameResult;
 import result.ListGamesResult;
 import result.ListGamesResultList;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -44,7 +45,7 @@ class GameServiceTest {
     }
 
     @Test
-    void listGamesInvalidAuth() {
+    void listGamesInvalidAuth() throws SQLException, DataAccessException {
             DataAccess da = new MemoryDataAccess();
 
             GameService gameService = new GameService(da);
@@ -128,7 +129,9 @@ class GameServiceTest {
         GameService gameService = new GameService(da);
         ChessGame chessGame = new ChessGame();
         GameData game = new GameData(1111, null, "Fives", "501st", chessGame);
+        assertDoesNotThrow(() -> {
         da.createGame(game);
+        });
 
         JoinGameRequest joinGameRequest = new JoinGameRequest(userAuth.authToken(), "WHITE", 1);
 
@@ -143,7 +146,9 @@ class GameServiceTest {
         GameService gameService = new GameService(da);
         ChessGame chessGame = new ChessGame();
         GameData game = new GameData(1, null, "Fives", "501st", chessGame);
+        assertDoesNotThrow(() -> {
         da.createGame(game);
+        });
 
         JoinGameRequest joinGameRequest = new JoinGameRequest("nope", "WHITE", 1);
 
@@ -159,7 +164,9 @@ class GameServiceTest {
         GameService gameService = new GameService(da);
         ChessGame chessGame = new ChessGame();
         GameData game = new GameData(1, null, "Fives", "501st", chessGame);
+        assertDoesNotThrow(() -> {
         da.createGame(game);
+        });
 
         JoinGameRequest joinGameRequest = new JoinGameRequest(userAuth.authToken(), "BLACK", 1);
 
@@ -175,7 +182,9 @@ class GameServiceTest {
         GameService gameService = new GameService(da);
         ChessGame chessGame = new ChessGame();
         GameData game = new GameData(1, null, "Fives", "501st", chessGame);
+        assertDoesNotThrow(() -> {
         da.createGame(game);
+        });
 
         JoinGameRequest joinGameRequest = new JoinGameRequest(userAuth.authToken(), "YELLOW", 1);
 

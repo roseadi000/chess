@@ -107,7 +107,7 @@ public class GameService {
         return new GameData(game.gameID(), whiteUsername, blackUsername, game.gameName(), game.game());
     }
 
-    private Integer getGameID(){
+    private Integer getGameID() throws SQLException, DataAccessException {
       Integer gameID = new Random().nextInt(10000);
       if (da.getGame(gameID) != null) {
           return getGameID();

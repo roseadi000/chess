@@ -1,9 +1,11 @@
 package dataaccess;
 
+import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
+import com.google.gson.Gson;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -16,7 +18,8 @@ public class SQLDataAccess implements DataAccess{
     enum inputTypes {
         USERNAME,
         PASSWORD,
-        EMAIL
+        EMAIL,
+        GAME_NAME
     }
 
     private final String userTableStatement =
@@ -43,7 +46,7 @@ public class SQLDataAccess implements DataAccess{
                 whiteUsername VARCHAR(255) DEFAULT NULL,
                 blackUsername VARCHAR(255) DEFAULT NULL,
                 gameName VARCHAR(255) NOT NULL,
-                gameData VARCHAR(255) NOT NULL,
+                gameData TEXT NOT NULL,
                 PRIMARY KEY (gameID)
             )""";
 
@@ -124,13 +127,27 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public void createGame(GameData gameData) {
-
+    public void createGame(GameData gameData) throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()){
+            if(sanitizeInput(gameData.gameName(), inputTypes.GAME_NAME)){
+                var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameData) VALUES(?, ?, ?, ?, ?)";
+                updateDatabase(statement, List.of(gameData.gameID(), gameData.whiteUsername(),
+                        gameData.blackUsername(), gameData.gameName(), gameData.game()), conn);
+            }
+        }
     }
 
     @Override
-    public GameData getGame(Integer gameID) {
-        return null;
+    public GameData getGame(Integer gameID) throws DataAccessException, SQLException {
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameData FROM games WHERE gameID=?";
+            try(var getGameStatement = conn.prepareStatement(statement)){
+                getGameStatement.setInt(1, gameID);
+                try(var response = getGameStatement.executeQuery()){
+                    return readGetGame(response);
+                }
+            }
+        }
     }
 
     @Override
@@ -183,6 +200,10 @@ public class SQLDataAccess implements DataAccess{
                     else if(parm instanceof Integer){
                         createTableStatement.setInt(i + 1, (Integer) parm);
                     }
+                    else if(parm instanceof ChessGame){
+                        String game = new Gson().toJson(parm);
+                        createTableStatement.setString(i + 1, game);
+                    }
                 }
             }
             createTableStatement.executeUpdate();
@@ -198,8 +219,14 @@ public class SQLDataAccess implements DataAccess{
         else if(type == inputTypes.PASSWORD){
             return input.matches("\\w+[!@#$%_]*");
         }
-        else {
+        else if(type == inputTypes.EMAIL){
             return input.matches("\\w+@\\w+\\.\\w+");
+        }
+        else if(type == inputTypes.GAME_NAME){
+            return input.matches("\\w+");
+        }
+        else {
+            return false;
         }
     }
 
@@ -242,4 +269,29 @@ public class SQLDataAccess implements DataAccess{
             return null;
         }
     }
+    private GameData readGetGame(ResultSet result) throws SQLException {
+        Integer gameID = null;
+        String whiteUsername = null;
+        String blackUsername = null;
+        String gameName = null;
+        String game = null;
+
+        while(result.next()) {
+            gameID = result.getInt("gameID");
+            whiteUsername = result.getString("whiteUsername");
+            blackUsername = result.getString("blackUsername");
+            gameName = result.getString("gameName");
+            game = result.getString("gameData");
+        }
+
+        if(gameID != null) {
+            ChessGame chessGame = new Gson().fromJson(game, ChessGame.class);
+            return new GameData(gameID, whiteUsername, blackUsername, gameName, chessGame);
+        }
+        else {
+            return null;
+        }
+    }
 }
+
+

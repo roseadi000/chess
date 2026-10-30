@@ -37,8 +37,9 @@ class SQLDataAccessTest {
     }
     private GameData createGame(SQLDataAccess da, Integer gameID, String whiteUsername, String blackUsername, String gameName, ChessGame game){
         GameData newGame = new GameData(gameID, whiteUsername, blackUsername, gameName, game);
+        assertDoesNotThrow(() -> {
         da.createGame(newGame);
-
+        });
         return newGame;
 
     }
@@ -58,7 +59,9 @@ class SQLDataAccessTest {
     void clear() {
         assertDoesNotThrow(() -> {
         UserData newUser = createUser(da);
-        assertEquals(newUser, da.getUser(newUser.username()));
+        assertEquals(newUser.username(), da.getUser(newUser.username()).username());
+        assertTrue(BCrypt.checkpw(newUser.password(), da.getUser(newUser.username()).password()));
+        assertEquals(newUser.email(), da.getUser(newUser.username()).email());
 
         AuthData newAuth = createAuth(da);
         assertEquals(newAuth, da.getAuth(newAuth.authToken()));
@@ -161,7 +164,9 @@ class SQLDataAccessTest {
     }
     @Test
     void getGameEmpty(){
+        assertDoesNotThrow(() -> {
         assertNull(da.getGame(1));
+        });
     }
 
     @Test
