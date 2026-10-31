@@ -32,7 +32,7 @@ public class GameHandler {
             ctx.result(serializer.toJson(errorResult));
             ctx.status(401);
         } catch (Exception e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ErrorResult errorResult = new ErrorResult(String.format("Error: %s", e.getMessage()));
             ctx.result(serializer.toJson(errorResult));
             ctx.status(500);
         }
@@ -59,7 +59,7 @@ public class GameHandler {
             ctx.result(serializer.toJson(errorResult));
             ctx.status(422);
         } catch (Exception e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ErrorResult errorResult = new ErrorResult(String.format("Error: %s", e.getMessage()));
             ctx.result(serializer.toJson(errorResult));
             ctx.status(500);
         }
@@ -87,7 +87,7 @@ public class GameHandler {
             ctx.result(serializer.toJson(errorResult));
             ctx.status(403);
         } catch (Exception e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ErrorResult errorResult = new ErrorResult(String.format("Error: %s", e.getMessage()));
             ctx.result(serializer.toJson(errorResult));
             ctx.status(500);
         }

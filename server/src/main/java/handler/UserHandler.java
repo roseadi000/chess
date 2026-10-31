@@ -28,24 +28,8 @@ public class UserHandler {
         try{
            RegisterResult registerResult = userService.register(register);
             ctx.result(serializer.toJson(registerResult));
-        } catch (AlreadyTakenException e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(403);
-        } catch (FieldEmptyException e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(400);
-        }
-        catch (InvalidInputException e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(422);
-        }
-        catch (Exception e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(500);
+        } catch (Exception e) {
+            exceptionHandler(ctx, e);
         }
 
     }
@@ -56,24 +40,9 @@ public class UserHandler {
         try{
             LoginResult loginResult = userService.login(login);
             ctx.result(serializer.toJson(loginResult));
-        } catch (IncorrectLoginException e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(401);
-        } catch (FieldEmptyException e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(400);
-        }
-        catch (InvalidInputException e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(422);
         }
         catch (Exception e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(500);
+            exceptionHandler(ctx, e);
         }
     }
 
@@ -83,14 +52,8 @@ public class UserHandler {
         try{
             LogoutResult logoutResult = userService.logout(logout);
             ctx.result(serializer.toJson(logoutResult));
-        } catch (InvalidAuthException e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(401);
         } catch (Exception e) {
-            ErrorResult errorResult = new ErrorResult(e.getMessage());
-            ctx.result(serializer.toJson(errorResult));
-            ctx.status(500);
+            exceptionHandler(ctx, e);
         }
     }
 
@@ -101,7 +64,38 @@ public class UserHandler {
             ClearResult clearResult = userService.clear(clearRequest);
             ctx.result(serializer.toJson(clearResult));
         } catch (Exception e) {
+            exceptionHandler(ctx, e);
+        }
+    }
+
+    private void exceptionHandler(Context ctx, Exception e){
+        if(e instanceof AlreadyTakenException) {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(403);
+        }
+        else if(e instanceof FieldEmptyException) {
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(400);
+        }
+        else if(e instanceof InvalidInputException) {
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(422);
+        }
+        else if(e instanceof IncorrectLoginException) {
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(401);
+        }
+        else if (e instanceof InvalidAuthException) {
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(401);
+        }
+        else{
+            ErrorResult errorResult = new ErrorResult(String.format("Error: %s", e.getMessage()));
             ctx.result(serializer.toJson(errorResult));
             ctx.status(500);
         }

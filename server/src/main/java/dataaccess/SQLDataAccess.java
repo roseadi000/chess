@@ -19,7 +19,7 @@ import static java.sql.Types.NULL;
 
 public class SQLDataAccess implements DataAccess{
 
-    enum inputTypes {
+    enum InputTypes {
         USERNAME,
         PASSWORD,
         EMAIL,
@@ -61,10 +61,10 @@ public class SQLDataAccess implements DataAccess{
     @Override
     public void createUser(UserData userData) throws DataAccessException, SQLException, InvalidInputException {
         try(var conn = DatabaseManager.getConnection()){
-            if(sanitizeInput(userData.username(), inputTypes.USERNAME)){
-                if(sanitizeInput(userData.password(), inputTypes.PASSWORD)){
+            if(sanitizeInput(userData.username(), InputTypes.USERNAME)){
+                if(sanitizeInput(userData.password(), InputTypes.PASSWORD)){
                     String passwordHashed = hashPassword(userData.password());
-                    if(sanitizeInput(userData.email(), inputTypes.EMAIL)){
+                    if(sanitizeInput(userData.email(), InputTypes.EMAIL)){
                         var statement = "INSERT INTO users (username, password, email) VALUES(?, ?, ?)";
                         updateDatabase(statement, List.of(userData.username(), passwordHashed, userData.email()), conn);
                     }
@@ -86,7 +86,7 @@ public class SQLDataAccess implements DataAccess{
     @Override
     public UserData getUser(String username) throws SQLException, DataAccessException, InvalidInputException {
         try(var conn = DatabaseManager.getConnection()){
-            if(sanitizeInput(username, inputTypes.USERNAME)){
+            if(sanitizeInput(username, InputTypes.USERNAME)){
                 var statement = "SELECT username, password, email FROM users WHERE username=?";
                 try(var getUserStatement = conn.prepareStatement(statement)){
                     getUserStatement.setString(1, username);
@@ -104,7 +104,7 @@ public class SQLDataAccess implements DataAccess{
     @Override
     public void createAuth(AuthData authData) throws DataAccessException, SQLException, InvalidInputException {
         try(var conn = DatabaseManager.getConnection()){
-            if(sanitizeInput(authData.username(), inputTypes.USERNAME)){
+            if(sanitizeInput(authData.username(), InputTypes.USERNAME)){
                 var statement = "INSERT INTO auths (authToken, username) VALUES(?, ?)";
                 updateDatabase(statement, List.of(authData.authToken(), authData.username()), conn);
             }
@@ -150,7 +150,7 @@ public class SQLDataAccess implements DataAccess{
     @Override
     public void createGame(GameData gameData) throws DataAccessException, SQLException, InvalidInputException {
         try(var conn = DatabaseManager.getConnection()){
-            if(sanitizeInput(gameData.gameName(), inputTypes.GAME_NAME)){
+            if(sanitizeInput(gameData.gameName(), InputTypes.GAME_NAME)){
                 var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameData) VALUES(?, ?, ?, ?, ?)";
                 updateDatabase(statement, Arrays.asList(gameData.gameID(), gameData.whiteUsername(),
                         gameData.blackUsername(), gameData.gameName(), gameData.game()), conn);
@@ -235,14 +235,14 @@ public class SQLDataAccess implements DataAccess{
         }
     }
 
-    private boolean sanitizeInput(String input, inputTypes type){
-        if(type == inputTypes.USERNAME){
+    private boolean sanitizeInput(String input, InputTypes type){
+        if(type == InputTypes.USERNAME){
             return input.matches("\\w+");
         }
-        else if(type == inputTypes.PASSWORD){
+        else if(type == InputTypes.PASSWORD){
             return input.matches("\\w+[!@#$%_]*");
         }
-        else if(type == inputTypes.EMAIL){
+        else if(type == InputTypes.EMAIL){
             return input.matches("\\w+@\\w+\\.\\w+");
         }
         else{

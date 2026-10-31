@@ -18,7 +18,8 @@ public class UserService {
         this.da = da;
     }
 
-    public RegisterResult register(RegisterRequest registerRequest) throws AlreadyTakenException, FieldEmptyException, SQLException, DataAccessException, InvalidInputException {
+    public RegisterResult register(RegisterRequest registerRequest)
+            throws AlreadyTakenException, FieldEmptyException, SQLException, DataAccessException, InvalidInputException {
         if(registerRequest.username() == null || registerRequest.password() == null || registerRequest.email() == null){
             throw new FieldEmptyException("Error: username, password, or email cannot be empty");
         }
@@ -38,7 +39,8 @@ public class UserService {
         }
     }
 
-    public LoginResult login(LoginRequest loginRequest) throws IncorrectLoginException, FieldEmptyException, SQLException, DataAccessException, InvalidInputException {
+    public LoginResult login(LoginRequest loginRequest)
+            throws IncorrectLoginException, FieldEmptyException, SQLException, DataAccessException, InvalidInputException {
         if(loginRequest.username() == null || loginRequest.password() == null){
             throw new FieldEmptyException("Error: username or password cannot be empty");
         }

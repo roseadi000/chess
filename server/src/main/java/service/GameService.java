@@ -36,7 +36,8 @@ public class GameService {
         }
     }
 
-    public CreateGameResult createGame(CreateGameRequest createGameRequest) throws InvalidAuthException, FieldEmptyException, SQLException, DataAccessException, InvalidInputException {
+    public CreateGameResult createGame(CreateGameRequest createGameRequest)
+            throws InvalidAuthException, FieldEmptyException, SQLException, DataAccessException, InvalidInputException {
         if(createGameRequest.gameName() == null || createGameRequest.gameName().equals("{}")){
             throw new FieldEmptyException("Error: game name cannot be empty");
         }
