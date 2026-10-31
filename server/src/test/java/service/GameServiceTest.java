@@ -45,7 +45,7 @@ class GameServiceTest {
     }
 
     @Test
-    void listGamesInvalidAuth() throws SQLException, DataAccessException {
+    void listGamesInvalidAuth() throws SQLException, DataAccessException, InvalidInputException {
             DataAccess da = new MemoryDataAccess();
 
             GameService gameService = new GameService(da);

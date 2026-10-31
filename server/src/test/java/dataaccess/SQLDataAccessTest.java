@@ -90,7 +90,27 @@ class SQLDataAccessTest {
         da.clear();
         });
     }
-
+    @Test
+    void invalidUsernameCreateUserInput() {
+        assertThrows(InvalidInputException.class, () -> {
+            UserData newUser = new UserData("Rex:)", "forTheRepublic", "rex@501st.com");
+            da.createUser(newUser);
+        });
+    }
+    @Test
+    void invalidPasswordCreateUserInput() {
+        assertThrows(InvalidInputException.class, () -> {
+            UserData newUser = new UserData("Rex", "forTheRepublic;;", "rex@501st.com");
+            da.createUser(newUser);
+        });
+    }
+    @Test
+    void invalidEmailCreateUserInput() {
+        assertThrows(InvalidInputException.class, () -> {
+            UserData newUser = new UserData("Rex", "forTheRepublic", "rex$501st.com");
+            da.createUser(newUser);
+        });
+    }
     @Test
     void getUserNotInList() {
         assertDoesNotThrow(() -> {
@@ -101,6 +121,12 @@ class SQLDataAccessTest {
     void getUserEmpty() {
         assertDoesNotThrow(() -> {
         assertNull(da.getUser("Rex"));
+        });
+    }
+    @Test
+    void invalidUsernameGetUserInput() {
+        assertThrows(InvalidInputException.class, () -> {
+            da.getUser("Rex:)");
         });
     }
 
@@ -118,6 +144,13 @@ class SQLDataAccessTest {
     void getAuthNotInList() {
         assertDoesNotThrow(() -> {
         assertNull(da.getAuth("654320"));
+        });
+    }
+    @Test
+    void invalidUsernameCreateAuthInput() {
+        assertThrows(InvalidInputException.class, () -> {
+            AuthData auth = new AuthData("123456", "Rex:)");
+            da.createAuth(auth);
         });
     }
     @Test
@@ -149,6 +182,13 @@ class SQLDataAccessTest {
         assertEquals(newGame, da.getGame(newGame.gameID()));
 
         da.clear();
+        });
+    }
+    @Test
+    void invalidGameNameGetGameInput(){
+        assertThrows(InvalidInputException.class, () -> {
+            ChessGame game = new ChessGame();
+            da.createGame(new GameData(1, "Rex", "Cody", "501st;", game));
         });
     }
     @Test

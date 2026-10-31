@@ -37,6 +37,11 @@ public class UserHandler {
             ctx.result(serializer.toJson(errorResult));
             ctx.status(400);
         }
+        catch (InvalidInputException e) {
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(422);
+        }
         catch (Exception e) {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
             ctx.result(serializer.toJson(errorResult));
@@ -59,6 +64,11 @@ public class UserHandler {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
             ctx.result(serializer.toJson(errorResult));
             ctx.status(400);
+        }
+        catch (InvalidInputException e) {
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(422);
         }
         catch (Exception e) {
             ErrorResult errorResult = new ErrorResult(e.getMessage());

@@ -4,15 +4,12 @@ import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.mindrot.jbcrypt.BCrypt;
 import com.google.gson.Gson;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +59,7 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public void createUser(UserData userData) throws DataAccessException, SQLException {
+    public void createUser(UserData userData) throws DataAccessException, SQLException, InvalidInputException {
         try(var conn = DatabaseManager.getConnection()){
             if(sanitizeInput(userData.username(), inputTypes.USERNAME)){
                 if(sanitizeInput(userData.password(), inputTypes.PASSWORD)){
@@ -71,13 +68,23 @@ public class SQLDataAccess implements DataAccess{
                         var statement = "INSERT INTO users (username, password, email) VALUES(?, ?, ?)";
                         updateDatabase(statement, List.of(userData.username(), passwordHashed, userData.email()), conn);
                     }
+                    else{
+                        throw new InvalidInputException("Error: Invalid input. Write a valid email: " +
+                                "<letters, numbers, _>@<letters, numbers, _>.<letters, numbers>");
+                    }
                 }
+                else{
+                    throw new InvalidInputException("Error: Invalid input. Only use letters, numbers, and these symbols [!@#$%_]");
+                }
+            }
+            else{
+                throw new InvalidInputException("Error: Invalid input. Only use letters, numbers, and _");
             }
         }
     }
 
     @Override
-    public UserData getUser(String username) throws SQLException, DataAccessException {
+    public UserData getUser(String username) throws SQLException, DataAccessException, InvalidInputException {
         try(var conn = DatabaseManager.getConnection()){
             if(sanitizeInput(username, inputTypes.USERNAME)){
                 var statement = "SELECT username, password, email FROM users WHERE username=?";
@@ -87,20 +94,22 @@ public class SQLDataAccess implements DataAccess{
                         return readGetUser(response);
                     }
                 }
-
             }
-        } catch (SQLException e) {
-            throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
+            else{
+                throw new InvalidInputException("Error: Invalid input. Only use letters, numbers, and _");
+            }
         }
-        return null;
     }
 
     @Override
-    public void createAuth(AuthData authData) throws DataAccessException, SQLException {
+    public void createAuth(AuthData authData) throws DataAccessException, SQLException, InvalidInputException {
         try(var conn = DatabaseManager.getConnection()){
             if(sanitizeInput(authData.username(), inputTypes.USERNAME)){
                 var statement = "INSERT INTO auths (authToken, username) VALUES(?, ?)";
                 updateDatabase(statement, List.of(authData.authToken(), authData.username()), conn);
+            }
+            else{
+                throw new InvalidInputException("Error: Invalid input. Only use letters, numbers, and _");
             }
         }
     }
@@ -139,17 +148,17 @@ public class SQLDataAccess implements DataAccess{
     }
 
     @Override
-    public void createGame(GameData gameData) throws DataAccessException, SQLException {
+    public void createGame(GameData gameData) throws DataAccessException, SQLException, InvalidInputException {
         try(var conn = DatabaseManager.getConnection()){
             if(sanitizeInput(gameData.gameName(), inputTypes.GAME_NAME)){
                 var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameData) VALUES(?, ?, ?, ?, ?)";
                 updateDatabase(statement, Arrays.asList(gameData.gameID(), gameData.whiteUsername(),
                         gameData.blackUsername(), gameData.gameName(), gameData.game()), conn);
             }
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Error: Could not connect to the database");
-        } catch (SQLException e) {
-            throw new SQLException(String.format("Error: Invalid SQL Statement: %s", e.getMessage()));
+            else{
+                throw new InvalidInputException("Error: Invalid input. Only use letters, " +
+                        "numbers, space, and these symbols [!#$%&?>.',_]");
+            }
         }
     }
 
@@ -186,12 +195,7 @@ public class SQLDataAccess implements DataAccess{
             updateDatabase(authsStatement, List.of(), conn);
             updateDatabase(gamesStatement, List.of(), conn);
 
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Error: Couldn't connect to the database");
-        } catch (SQLException e) {
-            throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
         }
-
     }
 
     private void configureDatabase() throws DataAccessException, SQLException {
@@ -204,8 +208,6 @@ public class SQLDataAccess implements DataAccess{
     private void createTable(String statement) throws DataAccessException, SQLException {
         try(var conn = DatabaseManager.getConnection()) {
             updateDatabase(statement, List.of(), conn);
-        } catch (DataAccessException e) {
-            throw new DataAccessException("Error: Couldn't connect to the database");
         }
     }
 
@@ -230,8 +232,6 @@ public class SQLDataAccess implements DataAccess{
                 }
             }
             createTableStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
         }
     }
 
@@ -245,11 +245,8 @@ public class SQLDataAccess implements DataAccess{
         else if(type == inputTypes.EMAIL){
             return input.matches("\\w+@\\w+\\.\\w+");
         }
-        else if(type == inputTypes.GAME_NAME){
+        else{
             return input.matches("[\\w\\s'!#$%&?.,]+");
-        }
-        else {
-            return false;
         }
     }
 

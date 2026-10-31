@@ -54,6 +54,10 @@ public class GameHandler {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
             ctx.result(serializer.toJson(errorResult));
             ctx.status(400);
+        } catch (InvalidInputException e) {
+            ErrorResult errorResult = new ErrorResult(e.getMessage());
+            ctx.result(serializer.toJson(errorResult));
+            ctx.status(422);
         } catch (Exception e) {
             ErrorResult errorResult = new ErrorResult(e.getMessage());
             ctx.result(serializer.toJson(errorResult));
