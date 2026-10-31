@@ -1,10 +1,12 @@
-package dataaccess;
+package dataaccess.sql;
 
 import chess.ChessGame;
+import dataaccess.DataAccessException;
+import dataaccess.InvalidInputException;
+import dataaccess.SQLDataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mindrot.jbcrypt.BCrypt;
