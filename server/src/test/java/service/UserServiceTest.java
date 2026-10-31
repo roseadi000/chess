@@ -123,14 +123,12 @@ class UserServiceTest {
     }
 
     private static UserService createUserService(DataAccess da) {
-        assertDoesNotThrow(() -> {
         UserService userService = new UserService(da);
         UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        da.createUser(user);
-        return userService;
+        assertDoesNotThrow(() -> {
+            da.createUser(user);
         });
-
-        return null;
+        return userService;
     }
 }
 

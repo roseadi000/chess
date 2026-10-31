@@ -3,6 +3,7 @@ package service;
 import dataaccess.*;
 import model.AuthData;
 import model.UserData;
+import org.mindrot.jbcrypt.BCrypt;
 import request.LoginRequest;
 import request.*;
 import result.*;
@@ -43,7 +44,7 @@ public class UserService {
         }
 
         if(da.getUser(loginRequest.username()) != null){
-            if(da.getUser(loginRequest.username()).password().equals(loginRequest.password())){
+            if(checkPassword(loginRequest.password(), da.getUser(loginRequest.username()).password())) {
                 String authToken = generateToken();
                 AuthData auth = new AuthData(authToken, loginRequest.username());
                 da.createAuth(auth);
@@ -72,5 +73,12 @@ public class UserService {
 
     private String generateToken(){
         return UUID.randomUUID().toString();
+    }
+
+    private boolean checkPassword(String password, String storedPassword) throws SQLException, DataAccessException {
+        if(da instanceof SQLDataAccess) {
+            return BCrypt.checkpw(password, storedPassword);
+        }
+        return storedPassword.equals(password);
     }
 }

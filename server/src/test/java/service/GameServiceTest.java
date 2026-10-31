@@ -193,14 +193,17 @@ class GameServiceTest {
     }
 
     private static AuthData createUser(DataAccess da) {
-        assertDoesNotThrow(() -> {
         UserData user = new UserData("Rex", "forTheRepublic", "rex@501st.com");
-        da.createUser(user);
+        assertDoesNotThrow(() -> {
+            da.createUser(user);
+        });
+
         AuthData auth = new AuthData("123456", "Rex");
+        assertDoesNotThrow(() -> {
         da.createAuth(auth);
+        });
 
         return auth;
-        });
-        return null;
+
     }
 }

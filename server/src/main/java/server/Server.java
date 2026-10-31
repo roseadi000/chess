@@ -1,17 +1,27 @@
 package server;
 
 import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
+import dataaccess.SQLDataAccess;
 import handler.GameHandler;
 import io.javalin.*;
 import handler.UserHandler;
+
+import java.sql.SQLException;
 
 public class Server {
 
     private final Javalin javalin;
 
     public Server() {
-        DataAccess da = new MemoryDataAccess();
+        DataAccess da;
+
+        try {
+            da = new SQLDataAccess();
+        } catch (SQLException | DataAccessException e) {
+            da = new MemoryDataAccess();
+        }
         UserHandler userHandler = new UserHandler(da);
         GameHandler gameHandler = new GameHandler(da);
         javalin = Javalin.create(config -> config.staticFiles.add("web"));

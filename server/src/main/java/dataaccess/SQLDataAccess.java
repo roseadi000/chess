@@ -4,15 +4,21 @@ import chess.ChessGame;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mindrot.jbcrypt.BCrypt;
 import com.google.gson.Gson;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.sql.Types.NULL;
 
 public class SQLDataAccess implements DataAccess{
 
@@ -67,8 +73,6 @@ public class SQLDataAccess implements DataAccess{
                     }
                 }
             }
-        } catch (SQLException e) {
-            throw new SQLException(String.format("Error: Invalid Statement: %s", e.getMessage()));
         }
     }
 
@@ -139,9 +143,13 @@ public class SQLDataAccess implements DataAccess{
         try(var conn = DatabaseManager.getConnection()){
             if(sanitizeInput(gameData.gameName(), inputTypes.GAME_NAME)){
                 var statement = "INSERT INTO games (gameID, whiteUsername, blackUsername, gameName, gameData) VALUES(?, ?, ?, ?, ?)";
-                updateDatabase(statement, List.of(gameData.gameID(), gameData.whiteUsername(),
+                updateDatabase(statement, Arrays.asList(gameData.gameID(), gameData.whiteUsername(),
                         gameData.blackUsername(), gameData.gameName(), gameData.game()), conn);
             }
+        } catch (DataAccessException e) {
+            throw new DataAccessException("Error: Could not connect to the database");
+        } catch (SQLException e) {
+            throw new SQLException(String.format("Error: Invalid SQL Statement: %s", e.getMessage()));
         }
     }
 
@@ -162,7 +170,7 @@ public class SQLDataAccess implements DataAccess{
     public void updateGame(GameData updatedGame) throws DataAccessException, SQLException {
         try(var conn = DatabaseManager.getConnection()){
             var statement = "UPDATE games SET whiteUsername=?, blackUsername=?, gameData=? WHERE gameID=?";
-                updateDatabase(statement, List.of( updatedGame.whiteUsername(),
+                updateDatabase(statement, Arrays.asList(updatedGame.whiteUsername(),
                         updatedGame.blackUsername(), updatedGame.game(), updatedGame.gameID()), conn);
         }
     }
@@ -201,7 +209,7 @@ public class SQLDataAccess implements DataAccess{
         }
     }
 
-    private static void updateDatabase(String statement, List<Object> parms, Connection conn) throws SQLException {
+    private void updateDatabase(String statement, List<Object> parms, Connection conn) throws SQLException {
         try(var createTableStatement = conn.prepareStatement(statement)){
             if(!parms.isEmpty()){
                 for(int i = 0; i < parms.size(); i++){
@@ -215,6 +223,9 @@ public class SQLDataAccess implements DataAccess{
                     else if(parm instanceof ChessGame){
                         String game = new Gson().toJson(parm);
                         createTableStatement.setString(i + 1, game);
+                    }
+                    else{createTableStatement.setNull(i + 1, NULL);
+
                     }
                 }
             }
@@ -235,7 +246,7 @@ public class SQLDataAccess implements DataAccess{
             return input.matches("\\w+@\\w+\\.\\w+");
         }
         else if(type == inputTypes.GAME_NAME){
-            return input.matches("\\w+");
+            return input.matches("[\\w\\s'!#$%&?.,]+");
         }
         else {
             return false;
