@@ -1,6 +1,9 @@
-package dataaccess;
+package dataaccess.sql;
 
 import chess.ChessGame;
+import dataaccess.DataAccess;
+import dataaccess.DataAccessException;
+import dataaccess.InvalidInputException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -17,7 +20,7 @@ import java.util.Map;
 
 import static java.sql.Types.NULL;
 
-public class SQLDataAccess implements DataAccess{
+public class SQLDataAccess implements DataAccess {
 
     enum InputTypes {
         USERNAME,

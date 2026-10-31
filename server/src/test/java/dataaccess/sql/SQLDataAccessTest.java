@@ -3,7 +3,6 @@ package dataaccess.sql;
 import chess.ChessGame;
 import dataaccess.DataAccessException;
 import dataaccess.InvalidInputException;
-import dataaccess.SQLDataAccess;
 import model.AuthData;
 import model.GameData;
 import model.UserData;

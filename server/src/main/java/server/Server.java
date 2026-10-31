@@ -3,7 +3,7 @@ package server;
 import dataaccess.DataAccess;
 import dataaccess.DataAccessException;
 import dataaccess.MemoryDataAccess;
-import dataaccess.SQLDataAccess;
+import dataaccess.sql.SQLDataAccess;
 import handler.GameHandler;
 import io.javalin.*;
 import handler.UserHandler;
