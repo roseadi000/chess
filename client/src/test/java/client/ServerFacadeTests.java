@@ -23,7 +23,8 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        serverFacade = new ServerFacade(new URI("https://localhost:0"));
+        String url = String.format("http://localhost:%d", port);
+        serverFacade = new ServerFacade(port);
     }
 
     @BeforeAll
