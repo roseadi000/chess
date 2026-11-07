@@ -50,13 +50,44 @@ public class ServerFacadeTests {
 
         assertEquals("Welcome N!", result);
     }
-
     @Test
-    void login() {
+    void registerStatusCodeNot200(){
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String result = serverFacade.register("N", "Puppies", "N@email.com");
+
+        assertEquals("Error: The username is already in use", result);
     }
 
     @Test
     void logout() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String result = serverFacade.logout();
+
+        assertEquals("Have a nice day!\nLog out successful", result);
+    }
+    @Test
+    void logoutStatusCodeNot200(){
+        String result = serverFacade.logout();
+
+        assertEquals("Error: No Authorization Token found. Please log in", result);
+    }
+
+
+    @Test
+    void login() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String logout = serverFacade.logout();
+        String result = serverFacade.login("N", "Puppies");
+
+        assertEquals("Welcome N!", result);
+    }
+    @Test
+    void loginStatusCodeNot200(){
+        String create = serverFacade.login("N", "Puppies");
+        String logout = serverFacade.logout();
+        String result = serverFacade.login("N", "Puppy");
+
+        assertEquals("Error: The username or password was incorrect", result);
     }
 
     @Test

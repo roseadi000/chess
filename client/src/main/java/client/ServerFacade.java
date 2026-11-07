@@ -1,7 +1,10 @@
 package client;
 
 import com.google.gson.Gson;
+import request.LoginRequest;
 import request.RegisterRequest;
+import result.ErrorResult;
+import result.LoginResult;
 import result.RegisterResult;
 import ui.UI;
 
@@ -14,21 +17,31 @@ public class ServerFacade {
 
     private final Integer port;
     private final String url;
-    private States state;
     private UI ui;
+    private States state;
+    private String authToken;
 
     public ServerFacade(Integer port) {
         this.port = port;
         this.url = "http://localhost";
-        this.state = States.LOGGED_OUT;
         this.ui = new UI();
+        this.state = States.LOGGED_OUT;
+        this.authToken = "";
     }
 
     public void run() {
         var result = "";
         while (state != States.QUIT) {
-            if (state != States.LOGGED_OUT) {
+            if (state == States.LOGGED_OUT) {
                 var input = ui.prelogin();
+                if (input.length > 0) {
+                    evalInput(input);
+                } else {
+                    System.out.println("Please enter a command. Type 'help' for list of commands");
+                }
+            }
+            else if(state == States.LOGGED_IN){
+                var input = ui.postlogin();
                 if (input.length > 0) {
                     evalInput(input);
                 } else {
@@ -55,6 +68,11 @@ public class ServerFacade {
             if (response.statusCode() == 200) {
                 RegisterResult registerResult = new Gson().fromJson(response.body(), RegisterResult.class);
                 result = String.format("Welcome %s!", registerResult.username());
+                state = States.LOGGED_IN;
+                authToken = registerResult.authToken();
+            }
+            else{
+                result = evalErrorCode(response);
             }
         } catch (Exception e) {
             result = String.format("Error: %s", e.getMessage()); //edit later
@@ -62,11 +80,58 @@ public class ServerFacade {
         return result;
     }
 
-        public void login (String username, String password){
+        public String login (String username, String password){
+            LoginRequest loginRequest = new LoginRequest(username, password);
+            String request = new Gson().toJson(loginRequest);
+            String result = "";
+            String loginURL = String.format("%s:%d/session", url, port);
 
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                HttpRequest httpRequest = HttpRequest.newBuilder()
+                        .uri(new URI(loginURL))
+                        .POST(HttpRequest.BodyPublishers.ofString(request))
+                        .build();
+                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    LoginResult loginResult = new Gson().fromJson(response.body(), LoginResult.class);
+                    result = String.format("Welcome %s!", loginResult.username());
+                    state = States.LOGGED_IN;
+                    authToken = loginResult.authToken();
+                }
+                else{
+                    result = evalErrorCode(response);
+                }
+            } catch (Exception e) {
+                result = String.format("Error: %s", e.getMessage()); //edit later
+            }
+            return result;
         }
 
-        public void logout () {
+        public String logout () {
+            String result = "";
+            String logoutURL = String.format("%s:%d/session", url, port);
+
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                HttpRequest httpRequest = HttpRequest.newBuilder()
+                        .uri(new URI(logoutURL))
+                        .DELETE()
+                        .header("Authorization", authToken)
+                        .build();
+                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    result = "Have a nice day!\nLog out successful";
+                    state = States.LOGGED_OUT;
+                    authToken = "";
+                }
+                else{
+                    result = evalErrorCode(response);
+                }
+            } catch (Exception e) {
+                result = String.format("Error: %s", e.getMessage()); //edit later
+            }
+            return result;
 
         }
 
@@ -87,10 +152,25 @@ public class ServerFacade {
         }
 
         private void evalInput (String[]input){
+            String result = "";
             if (input[0].equals("register")) {
                 if (input.length >= 4) {
-                    register(input[1], input[2], input[3]);
+                    result = register(input[1], input[2], input[3]);
                 }
             }
+            else if(input[0].equals("login")){
+                if(input.length >= 3){
+                    result = login(input[1], input[2]);
+                }
+            }
+            else if(input[0].equals("logout")){
+                result = logout();
+            }
+             UI.printMessage(result);
+        }
+
+        private String evalErrorCode(HttpResponse<String> response){
+            ErrorResult error = new Gson().fromJson(response.body(), ErrorResult.class);
+            return error.message();
         }
 }

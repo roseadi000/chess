@@ -19,4 +19,24 @@ public class UI {
 
         return result;
     }
+
+    public String[] postlogin() {
+        String helpMenu = """
+                Logout - Logout of your account
+                create <Name> - Create a chess game
+                list - See the list of chess games
+                join <ID> - Join a chess game
+                observe <ID> - Watch a chess game
+                Quit - Exit the program""";
+
+        Scanner scanner = new Scanner(System.in);
+        var line = scanner.nextLine();
+        var result = line.toLowerCase().split(" ");
+
+        return result;
+    }
+
+    public static void printMessage(String message){
+        System.out.println(message);
+    }
 }
