@@ -5,10 +5,6 @@ import dataaccess.sql.SQLDataAccess;
 import org.junit.jupiter.api.*;
 import server.Server;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -27,8 +23,8 @@ public class ServerFacadeTests {
         serverFacade = new ServerFacade(port);
     }
 
-    @BeforeAll
-    public static void clearServer() throws Exception {
+    @BeforeEach
+    public void clearServer() throws Exception {
         SQLDataAccess database = new SQLDataAccess();
         database.clear();
     }
@@ -92,6 +88,18 @@ public class ServerFacadeTests {
 
     @Test
     void createGame() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String result = serverFacade.createGame("Robots");
+        String id = result.split(": ")[1];
+        String expected = String.format("Robots was created with id: %s", id);
+
+        assertEquals(expected, result);
+    }
+    @Test
+    void createGameStatusCodeNot200() {
+        String result = serverFacade.createGame("Robots");
+
+        assertEquals("Error: Please log in", result);
     }
 
     @Test

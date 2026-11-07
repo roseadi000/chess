@@ -1,8 +1,10 @@
 package client;
 
 import com.google.gson.Gson;
+import request.CreateGameRequestBody;
 import request.LoginRequest;
 import request.RegisterRequest;
+import result.CreateGameResult;
 import result.ErrorResult;
 import result.LoginResult;
 import result.RegisterResult;
@@ -135,8 +137,31 @@ public class ServerFacade {
 
         }
 
-        public void createGame (String gameName){
+        public String createGame (String gameName){
+            CreateGameRequestBody createGameRequest = new CreateGameRequestBody(gameName);
+            String request = new Gson().toJson(createGameRequest);
+            String result = "";
+            String createGameURL = String.format("%s:%d/game", url, port);
 
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                HttpRequest httpRequest = HttpRequest.newBuilder()
+                        .uri(new URI(createGameURL))
+                        .POST(HttpRequest.BodyPublishers.ofString(request))
+                        .header("Authorization", authToken)
+                        .build();
+                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    CreateGameResult createGameResult = new Gson().fromJson(response.body(), CreateGameResult.class);
+                    result = String.format("%s was created with id: %d", createGameRequest.gameName(), createGameResult.gameID());
+                }
+                else{
+                    result = evalErrorCode(response);
+                }
+            } catch (Exception e) {
+                result = String.format("Error: %s", e.getMessage()); //edit later
+            }
+            return result;
         }
 
         public void listGames () {
@@ -165,6 +190,11 @@ public class ServerFacade {
             }
             else if(input[0].equals("logout")){
                 result = logout();
+            }
+            else if(input[0].equals("create")){
+                if(input.length >= 2) {
+                    result = createGame(input[1]);
+                }
             }
              UI.printMessage(result);
         }
