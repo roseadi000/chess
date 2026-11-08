@@ -124,10 +124,10 @@ public class ServerFacadeTests {
 
         String expected = """
                 Active Games:
-                1. Robots
+                1. Dogs
                    White: null
                    Black: null
-                2. Dogs
+                2. Robots
                    White: null
                    Black: null""";
 

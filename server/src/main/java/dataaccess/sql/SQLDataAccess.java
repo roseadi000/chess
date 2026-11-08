@@ -138,7 +138,7 @@ public class SQLDataAccess implements DataAccess {
     @Override
     public Map<Integer, GameData> getGamesList() throws DataAccessException, SQLException {
         try(var conn = DatabaseManager.getConnection()){
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameData FROM games";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, gameData FROM games ORDER BY gameName";
             try(var getGameStatement = conn.prepareStatement(statement)){
                 try(var response = getGameStatement.executeQuery()){
                     return readGetGamesList(response);
