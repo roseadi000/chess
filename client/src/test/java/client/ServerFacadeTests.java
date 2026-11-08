@@ -18,7 +18,6 @@ public class ServerFacadeTests {
         server = new Server();
         var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
-        String url = String.format("http://localhost:%d", port);
         serverFacade = new ServerFacade(port);
     }
 
@@ -105,15 +104,13 @@ public class ServerFacadeTests {
     void listGames() {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String game = serverFacade.createGame("Robots");
-        String id = game.split(": ")[1];
         String result = serverFacade.listGames();
 
-        String expected = String.format("""
+        String expected = """
                 Active Games:
                 1. Robots
-                   ID: %s
                    White: null
-                   Black: null""", id);
+                   Black: null""";
 
         assertEquals(expected, result);
     }
@@ -121,24 +118,26 @@ public class ServerFacadeTests {
     void listGamesMoreThanOneGame() {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String game1 = serverFacade.createGame("Robots");
-        String id1 = game1.split(": ")[1];
         String game2 = serverFacade.createGame("Dogs");
-        String id2 = game2.split(": ")[1];
 
         String result = serverFacade.listGames();
 
-        String expected = String.format("""
+        String expected = """
                 Active Games:
                 1. Robots
-                   ID: %s
                    White: null
                    Black: null
                 2. Dogs
-                   ID: %s
                    White: null
-                   Black: null""", id1, id2);
+                   Black: null""";
 
         assertEquals(expected, result);
+    }
+    @Test
+    void listGamesStatusCodeNot200() {
+        String result = serverFacade.createGame("Robots");
+
+        assertEquals("Error: Please log in", result);
     }
     @Test
     void listGamesEmpty() {
@@ -149,16 +148,46 @@ public class ServerFacadeTests {
 
         assertEquals(expected, result);
     }
-    @Test
-    void listGamesStatusCodeNot200() {
-        String result = serverFacade.createGame("Robots");
 
-        assertEquals("Error: Please log in", result);
-    }
+    /*@Test
+    void joinGameWhite() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String game = serverFacade.createGame("Robots");
+        String list = serverFacade.listGames();
+        String result = serverFacade.joinGame("white", 1);
 
-    @Test
-    void joinGame() {
+        assertEquals("You have joined game 1 as color: WHITE", result);
     }
+    @Test
+    void joinGameBlack() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String game = serverFacade.createGame("Robots");
+        String list = serverFacade.listGames();
+        String result = serverFacade.joinGame("Black", 1);
+
+        assertEquals("You have joined game 1 as color: BLACK", result);
+    }
+    @Test
+    void joinGameInvalidGameIndex() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String game = serverFacade.createGame("Robots");
+        String list = serverFacade.listGames();
+        String result = serverFacade.joinGame("black", 2);
+
+        assertEquals("Please enter a valid game index. Use 'list' to see active games", result);
+    }
+    @Test
+    void joinGameStatusCodeNot200() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String game = serverFacade.createGame("Robots");
+        String list = serverFacade.listGames();
+        String join = serverFacade.joinGame("WHITE", 1);
+        String create2 = serverFacade.register("Cyn", "Bleh", "cyn@gmail.com");
+        String list2 = serverFacade.listGames();
+        String result = serverFacade.joinGame("WHITE", 1);
+
+        assertEquals("Error: Color is full. Please choose another color or game", result);
+    }*/
 
     @Test
     void observeGame() {

@@ -28,7 +28,7 @@ public class UI {
                 Logout - Logout of your account
                 create <Name> - Create a chess game
                 list - See the list of chess games
-                join <ID> - Join a chess game
+                join <ID> <WHITE|BLACK> - Join a chess game
                 observe <ID> - Watch a chess game
                 Quit - Exit the program""";
 
@@ -49,9 +49,8 @@ public class UI {
         for(ListGamesResultList game : games.games()){
             list.append(String.format("""
                     \n%d. %s
-                       ID: %s
                        White: %s
-                       Black: %s""", index, game.gameName(), game.gameID(),
+                       Black: %s""", index, game.gameName(),
                     game.whiteUsername(), game.blackUsername()));
             index++;
         }

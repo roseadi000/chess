@@ -1,14 +1,13 @@
 package client;
 
 import com.google.gson.Gson;
-import request.CreateGameRequestBody;
-import request.ListGamesRequest;
-import request.LoginRequest;
-import request.RegisterRequest;
+import request.*;
 import result.*;
 import ui.UI;
 
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -20,6 +19,7 @@ public class ServerFacade {
     private UI ui;
     private States state;
     private String authToken;
+    private Integer gameID;
 
     public ServerFacade(Integer port) {
         this.port = port;
@@ -27,6 +27,7 @@ public class ServerFacade {
         this.ui = new UI();
         this.state = States.LOGGED_OUT;
         this.authToken = "";
+        this.gameID = null;
     }
 
     public void run() {
@@ -163,18 +164,11 @@ public class ServerFacade {
         }
 
         public String listGames () {
-            ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
-            String request = new Gson().toJson(listGamesRequest);
             String result = "";
-            String createGameURL = String.format("%s:%d/game", url, port);
+            String listGameURL = String.format("%s:%d/game", url, port);
 
-            try (HttpClient client = HttpClient.newHttpClient()) {
-                HttpRequest httpRequest = HttpRequest.newBuilder()
-                        .uri(new URI(createGameURL))
-                        .GET()
-                        .header("Authorization", authToken)
-                        .build();
-                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            try{
+                HttpResponse<String> response = getListofGames(listGameURL);
 
                 if (response.statusCode() == 200) {
                     ListGamesResult listGamesResult = new Gson().fromJson(response.body(), ListGamesResult.class);
@@ -184,14 +178,42 @@ public class ServerFacade {
                     result = evalErrorCode(response);
                 }
             } catch (Exception e) {
-                result = String.format("Error: %s", e.getMessage()); //edit later
+                result = String.format("Error: %s", e.getMessage());
             }
             return result;
         }
 
-        public void joinGame () {
+        /*public String joinGame (String color, Integer gameIndex) {
+            String result = "";
+                Integer gameID = getGameID(gameIndex);
+                if (gameID != null) {
+                    JoinGameRequestBody joinGameRequest = new JoinGameRequestBody(color.toUpperCase(), gameID);
+                    String request = new Gson().toJson(joinGameRequest);
+                    String joinGameURL = String.format("%s:%d/game", url, port);
 
-        }
+                    try (HttpClient client = HttpClient.newHttpClient()) {
+                        HttpRequest httpRequest = HttpRequest.newBuilder()
+                                .uri(new URI(joinGameURL))
+                                .PUT(HttpRequest.BodyPublishers.ofString(request))
+                                .header("Authorization", authToken)
+                                .build();
+                        HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+                        if (response.statusCode() == 200) {
+                            result = String.format("You have joined game %d as color: %s", gameIndex, color.toUpperCase());
+                        } else {
+                            result = evalErrorCode(response);
+                        }
+                    } catch (Exception e) {
+                        result = String.format("Error: %s", e.getMessage()); //edit later
+                    }
+                }
+                else {
+                    result = "Please enter a valid game index. Use 'list' to see active games";
+                }
+
+            return result;
+        }*/
 
         public void observeGame () {
 
@@ -217,6 +239,9 @@ public class ServerFacade {
                     result = createGame(input[1]);
                 }
             }
+            else if(input[0].equals("list")){
+                result = listGames();
+            }
             ui.printMessage(result);
         }
 
@@ -224,4 +249,25 @@ public class ServerFacade {
             ErrorResult error = new Gson().fromJson(response.body(), ErrorResult.class);
             return error.message();
         }
+
+        private HttpResponse<String> getListofGames(String url) throws URISyntaxException, IOException, InterruptedException {
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                HttpRequest httpRequest = HttpRequest.newBuilder()
+                        .uri(new URI(url))
+                        .GET()
+                        .header("Authorization", authToken)
+                        .build();
+                return client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            }
+        }
+
+
+       /* private Integer getGameID(Integer gameIndex){
+            if(gameIndex <= games.games().size() && gameIndex > 0){
+                return games.games().get(gameIndex - 1).gameID();
+            }
+            else{
+                return null;
+            }
+        }*/
 }

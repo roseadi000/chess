@@ -13,10 +13,7 @@ import com.google.gson.Gson;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static java.sql.Types.NULL;
 
@@ -317,7 +314,7 @@ public class SQLDataAccess implements DataAccess {
     }
 
     private Map<Integer, GameData> readGetGamesList(ResultSet result) throws SQLException {
-        Map<Integer, GameData> games = new HashMap<>();
+        Map<Integer, GameData> games = new LinkedHashMap<>();
 
         Integer gameID = null;
         String whiteUsername = null;
