@@ -149,11 +149,10 @@ public class ServerFacadeTests {
         assertEquals(expected, result);
     }
 
-    /*@Test
+    @Test
     void joinGameWhite() {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String game = serverFacade.createGame("Robots");
-        String list = serverFacade.listGames();
         String result = serverFacade.joinGame("white", 1);
 
         assertEquals("You have joined game 1 as color: WHITE", result);
@@ -162,7 +161,6 @@ public class ServerFacadeTests {
     void joinGameBlack() {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String game = serverFacade.createGame("Robots");
-        String list = serverFacade.listGames();
         String result = serverFacade.joinGame("Black", 1);
 
         assertEquals("You have joined game 1 as color: BLACK", result);
@@ -171,7 +169,6 @@ public class ServerFacadeTests {
     void joinGameInvalidGameIndex() {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String game = serverFacade.createGame("Robots");
-        String list = serverFacade.listGames();
         String result = serverFacade.joinGame("black", 2);
 
         assertEquals("Please enter a valid game index. Use 'list' to see active games", result);
@@ -180,14 +177,12 @@ public class ServerFacadeTests {
     void joinGameStatusCodeNot200() {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String game = serverFacade.createGame("Robots");
-        String list = serverFacade.listGames();
         String join = serverFacade.joinGame("WHITE", 1);
         String create2 = serverFacade.register("Cyn", "Bleh", "cyn@gmail.com");
-        String list2 = serverFacade.listGames();
         String result = serverFacade.joinGame("WHITE", 1);
 
         assertEquals("Error: Color is full. Please choose another color or game", result);
-    }*/
+    }
 
     @Test
     void observeGame() {

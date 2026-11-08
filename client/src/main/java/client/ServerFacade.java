@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 public class ServerFacade {
 
@@ -183,13 +184,23 @@ public class ServerFacade {
             return result;
         }
 
-        /*public String joinGame (String color, Integer gameIndex) {
+        public String joinGame (String color, Integer gameIndex) {
             String result = "";
-                Integer gameID = getGameID(gameIndex);
+            ListGamesResult games = null;
+            String joinGameURL = String.format("%s:%d/game", url, port);
+            try {
+                HttpResponse<String> listGames = getListofGames(joinGameURL);
+                if(listGames.statusCode() == 200){
+                    games = new Gson().fromJson(listGames.body(), ListGamesResult.class);
+                }
+            } catch (Exception e) {
+                return String.format("Error: %s", e.getMessage());
+            }
+            if(games != null) {
+                Integer gameID = getGameID(gameIndex, games);
                 if (gameID != null) {
                     JoinGameRequestBody joinGameRequest = new JoinGameRequestBody(color.toUpperCase(), gameID);
                     String request = new Gson().toJson(joinGameRequest);
-                    String joinGameURL = String.format("%s:%d/game", url, port);
 
                     try (HttpClient client = HttpClient.newHttpClient()) {
                         HttpRequest httpRequest = HttpRequest.newBuilder()
@@ -205,15 +216,18 @@ public class ServerFacade {
                             result = evalErrorCode(response);
                         }
                     } catch (Exception e) {
-                        result = String.format("Error: %s", e.getMessage()); //edit later
+                        result = String.format("Error: %s", e.getMessage());
                     }
-                }
-                else {
+                } else {
                     result = "Please enter a valid game index. Use 'list' to see active games";
                 }
+            }
+            else {
+                result = "There are no active games. Use 'create' to create a game";
+            }
 
             return result;
-        }*/
+        }
 
         public void observeGame () {
 
@@ -262,12 +276,12 @@ public class ServerFacade {
         }
 
 
-       /* private Integer getGameID(Integer gameIndex){
+       private Integer getGameID(Integer gameIndex, ListGamesResult games){
             if(gameIndex <= games.games().size() && gameIndex > 0){
                 return games.games().get(gameIndex - 1).gameID();
             }
             else{
                 return null;
             }
-        }*/
+        }
 }
