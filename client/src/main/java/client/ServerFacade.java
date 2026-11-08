@@ -2,12 +2,10 @@ package client;
 
 import com.google.gson.Gson;
 import request.CreateGameRequestBody;
+import request.ListGamesRequest;
 import request.LoginRequest;
 import request.RegisterRequest;
-import result.CreateGameResult;
-import result.ErrorResult;
-import result.LoginResult;
-import result.RegisterResult;
+import result.*;
 import ui.UI;
 
 import java.net.URI;
@@ -164,8 +162,31 @@ public class ServerFacade {
             return result;
         }
 
-        public void listGames () {
+        public String listGames () {
+            ListGamesRequest listGamesRequest = new ListGamesRequest(authToken);
+            String request = new Gson().toJson(listGamesRequest);
+            String result = "";
+            String createGameURL = String.format("%s:%d/game", url, port);
 
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                HttpRequest httpRequest = HttpRequest.newBuilder()
+                        .uri(new URI(createGameURL))
+                        .GET()
+                        .header("Authorization", authToken)
+                        .build();
+                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() == 200) {
+                    ListGamesResult listGamesResult = new Gson().fromJson(response.body(), ListGamesResult.class);
+                    result = ui.formatGamesList(listGamesResult);
+                }
+                else{
+                    result = evalErrorCode(response);
+                }
+            } catch (Exception e) {
+                result = String.format("Error: %s", e.getMessage()); //edit later
+            }
+            return result;
         }
 
         public void joinGame () {
@@ -196,7 +217,7 @@ public class ServerFacade {
                     result = createGame(input[1]);
                 }
             }
-             UI.printMessage(result);
+            ui.printMessage(result);
         }
 
         private String evalErrorCode(HttpResponse<String> response){

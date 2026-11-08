@@ -1,6 +1,5 @@
 package client;
 
-import dataaccess.DataAccessException;
 import dataaccess.sql.SQLDataAccess;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -104,6 +103,57 @@ public class ServerFacadeTests {
 
     @Test
     void listGames() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String game = serverFacade.createGame("Robots");
+        String id = game.split(": ")[1];
+        String result = serverFacade.listGames();
+
+        String expected = String.format("""
+                Active Games:
+                1. Robots
+                   ID: %s
+                   White: null
+                   Black: null""", id);
+
+        assertEquals(expected, result);
+    }
+    @Test
+    void listGamesMoreThanOneGame() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String game1 = serverFacade.createGame("Robots");
+        String id1 = game1.split(": ")[1];
+        String game2 = serverFacade.createGame("Dogs");
+        String id2 = game2.split(": ")[1];
+
+        String result = serverFacade.listGames();
+
+        String expected = String.format("""
+                Active Games:
+                1. Robots
+                   ID: %s
+                   White: null
+                   Black: null
+                2. Dogs
+                   ID: %s
+                   White: null
+                   Black: null""", id1, id2);
+
+        assertEquals(expected, result);
+    }
+    @Test
+    void listGamesEmpty() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String result = serverFacade.listGames();
+
+        String expected = "Active Games:";
+
+        assertEquals(expected, result);
+    }
+    @Test
+    void listGamesStatusCodeNot200() {
+        String result = serverFacade.createGame("Robots");
+
+        assertEquals("Error: Please log in", result);
     }
 
     @Test
