@@ -210,7 +210,7 @@ public class ServerFacadeTests {
     void observeGameInvalidGameIndex() {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String game = serverFacade.createGame("Robots");
-        String result = serverFacade.joinGame("black", 2);
+        String result = serverFacade.observeGame(2);
 
         assertEquals("Please enter a valid game index. Use 'list' to see active games", result);
     }

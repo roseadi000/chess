@@ -37,7 +37,7 @@ public class ServerFacade {
             if (state == States.LOGGED_OUT) {
                 var input = ui.prelogin();
                 if (input.length > 0) {
-                    evalInput(input);
+                    evalPreloginInput(input);
                 } else {
                     System.out.println("Please enter a command. Type 'help' for list of commands");
                 }
@@ -45,7 +45,7 @@ public class ServerFacade {
             else if(state == States.LOGGED_IN){
                 var input = ui.postlogin();
                 if (input.length > 0) {
-                    evalInput(input);
+                    evalPostloginInput(input);
                 } else {
                     System.out.println("Please enter a command. Type 'help' for list of commands");
                 }
@@ -213,6 +213,7 @@ public class ServerFacade {
                         if (response.statusCode() == 200) {
                             result = String.format("You have joined game %d as color: %s", gameIndex, color.toUpperCase());
                             state = States.PLAYING;
+                            this.gameID = gameID;
                         } else {
                             result = evalErrorCode(response);
                         }
@@ -246,6 +247,8 @@ public class ServerFacade {
                 Integer gameID = getGameID(gameIndex, games);
                 if (gameID != null) {
                     result = String.format("You are now observing game %s", gameIndex);
+                    state = States.OBSERVING;
+                    this.gameID = gameID;
                 }
                 else {
                     result = "Please enter a valid game index. Use 'list' to see active games";
@@ -257,9 +260,15 @@ public class ServerFacade {
             return result;
         }
 
-        private void evalInput (String[]input){
+        private void evalPreloginInput(String[] input){
             String result = "";
-            if (input[0].equals("register")) {
+            if(input[0].equals("help")){
+                result = """
+                login <username> <password> - Login in to play
+                register <username> <password> <email> - Don't have an account? Register
+                quit - Exit the program""";
+            }
+            else if (input[0].equals("register")) {
                 if (input.length >= 4) {
                     result = register(input[1], input[2], input[3]);
                 }
@@ -268,6 +277,27 @@ public class ServerFacade {
                 if(input.length >= 3){
                     result = login(input[1], input[2]);
                 }
+            }
+            else if(input[0].equals("quit")){
+                state = States.QUIT;
+                result = "Exiting program...";
+            }
+            else{
+                result = "Please enter a valid command. Use 'help' to see commands";
+            }
+            ui.printMessage(result);
+        }
+
+        private void evalPostloginInput (String[]input){
+            String result = "";
+            if(input[0].equals("help")){
+                result = """
+                logout - Logout of your account
+                create <Name> - Create a chess game
+                list - See the list of chess games
+                join <ID> <WHITE|BLACK> - Join a chess game
+                observe <ID> - Watch a chess game
+                quit - Exit the program""";
             }
             else if(input[0].equals("logout")){
                 result = logout();
@@ -282,6 +312,16 @@ public class ServerFacade {
             }
             else if(input[0].equals("join")){
                 result = joinGame(input[1], Integer.valueOf(input[2]));
+            }
+            else if(input[0].equals("observe")){
+                result = observeGame(Integer.valueOf(input[1]));
+            }
+            else if(input[0].equals("quit")){
+                state = States.QUIT;
+                result = "Exiting program...";
+            }
+            else{
+                result = "Please enter a valid command. Use 'help' to see commands";
             }
             ui.printMessage(result);
         }
