@@ -1,5 +1,6 @@
 package client;
 
+import chess.ChessBoard;
 import com.google.gson.Gson;
 import request.*;
 import result.*;
@@ -11,13 +12,13 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
+import java.util.Locale;
 
 public class ServerFacade {
 
     private final Integer port;
     private final String url;
-    private UI ui;
+    private final UI ui;
     private States state;
     private String authToken;
     private Integer gameID;
@@ -50,6 +51,9 @@ public class ServerFacade {
                     System.out.println("Please enter a command. Type 'help' for list of commands");
                 }
             }
+            else if(state == States.PLAYING_WHITE){
+                ui.displayChessBoardWhite(new ChessBoard());
+            }
 
         }
     }
@@ -77,7 +81,7 @@ public class ServerFacade {
                 result = evalErrorCode(response);
             }
         } catch (Exception e) {
-            result = String.format("Error: %s", e.getMessage()); //edit later
+            result = String.format("Error: %s", e.getMessage());
         }
         return result;
     }
@@ -105,7 +109,7 @@ public class ServerFacade {
                     result = evalErrorCode(response);
                 }
             } catch (Exception e) {
-                result = String.format("Error: %s", e.getMessage()); //edit later
+                result = String.format("Error: %s", e.getMessage());
             }
             return result;
         }
@@ -131,7 +135,7 @@ public class ServerFacade {
                     result = evalErrorCode(response);
                 }
             } catch (Exception e) {
-                result = String.format("Error: %s", e.getMessage()); //edit later
+                result = String.format("Error: %s", e.getMessage());
             }
             return result;
 
@@ -159,7 +163,7 @@ public class ServerFacade {
                     result = evalErrorCode(response);
                 }
             } catch (Exception e) {
-                result = String.format("Error: %s", e.getMessage()); //edit later
+                result = String.format("Error: %s", e.getMessage());
             }
             return result;
         }
@@ -212,7 +216,7 @@ public class ServerFacade {
 
                         if (response.statusCode() == 200) {
                             result = String.format("You have joined game %d as color: %s", gameIndex, color.toUpperCase());
-                            state = States.PLAYING;
+                            setGameColorState(color.toUpperCase());
                             this.gameID = gameID;
                         } else {
                             result = evalErrorCode(response);
@@ -234,9 +238,9 @@ public class ServerFacade {
         public String observeGame (Integer gameIndex) {
             String result = "";
             ListGamesResult games = null;
-            String joinGameURL = String.format("%s:%d/game", url, port);
+            String observeGameURL = String.format("%s:%d/game", url, port);
             try {
-                HttpResponse<String> listGames = getListofGames(joinGameURL);
+                HttpResponse<String> listGames = getListofGames(observeGameURL);
                 if(listGames.statusCode() == 200){
                     games = new Gson().fromJson(listGames.body(), ListGamesResult.class);
                 }
@@ -262,23 +266,30 @@ public class ServerFacade {
 
         private void evalPreloginInput(String[] input){
             String result = "";
+            String command = input[0].toLowerCase();
             if(input[0].equals("help")){
                 result = """
                 login <username> <password> - Login in to play
                 register <username> <password> <email> - Don't have an account? Register
                 quit - Exit the program""";
             }
-            else if (input[0].equals("register")) {
+            else if (command.equals("register")) {
                 if (input.length >= 4) {
                     result = register(input[1], input[2], input[3]);
                 }
+                else{
+                    result = "Please enter a username, password, and email";
+                }
             }
-            else if(input[0].equals("login")){
+            else if(command.equals("login")){
                 if(input.length >= 3){
                     result = login(input[1], input[2]);
                 }
+                else{
+                    result = "Please enter a username and password";
+                }
             }
-            else if(input[0].equals("quit")){
+            else if(command.equals("quit")){
                 state = States.QUIT;
                 result = "Exiting program...";
             }
@@ -290,7 +301,8 @@ public class ServerFacade {
 
         private void evalPostloginInput (String[]input){
             String result = "";
-            if(input[0].equals("help")){
+            String command = input[0].toLowerCase();
+            if(command.equals("help")){
                 result = """
                 logout - Logout of your account
                 create <Name> - Create a chess game
@@ -299,24 +311,45 @@ public class ServerFacade {
                 observe <ID> - Watch a chess game
                 quit - Exit the program""";
             }
-            else if(input[0].equals("logout")){
+            else if(command.equals("logout")){
                 result = logout();
             }
-            else if(input[0].equals("create")){
+            else if(command.equals("create")){
                 if(input.length >= 2) {
                     result = createGame(input[1]);
                 }
+                else{
+                    result = "Please enter a game name";
+                }
             }
-            else if(input[0].equals("list")){
+            else if(command.equals("list")){
                 result = listGames();
             }
-            else if(input[0].equals("join")){
-                result = joinGame(input[1], Integer.valueOf(input[2]));
+            else if(command.equals("join")){
+                if(input.length >= 3) {
+                    try {
+                        result = joinGame(input[2], Integer.valueOf(input[1]));
+                    } catch (NumberFormatException e) {
+                        result = "Please do join <ID> <WHITE|BLACK>";
+                    }
+                }
+                else{
+                    result = "Please enter a WHITE or BLACK and a game number";
+                }
             }
-            else if(input[0].equals("observe")){
-                result = observeGame(Integer.valueOf(input[1]));
+            else if(command.equals("observe")){
+                if(input.length >= 2) {
+                    try {
+                        result = observeGame(Integer.valueOf(input[1]));
+                    } catch (NumberFormatException e) {
+                        result = "ID must be a number";
+                    }
+                }
+                else{
+                    result = "Please enter a game number";
+                }
             }
-            else if(input[0].equals("quit")){
+            else if(command.equals("quit")){
                 state = States.QUIT;
                 result = "Exiting program...";
             }
@@ -349,6 +382,15 @@ public class ServerFacade {
             }
             else{
                 return null;
+            }
+        }
+
+        private void setGameColorState(String color){
+            if(color.equals("WHITE")){
+                state = States.PLAYING_WHITE;
+            }
+            else{
+                state = States.PLAYING_BLACK;
             }
         }
 }

@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import result.ListGamesResult;
 import result.ListGamesResultList;
 
@@ -13,7 +14,7 @@ public class UI {
         System.out.println("Welcome to Chess CLI. Type 'help' to get started");
         Scanner scanner = new Scanner(System.in);
         var line = scanner.nextLine();
-        var result = line.toLowerCase().split(" ");
+        var result = line.split(" ");
 
         return result;
     }
@@ -21,9 +22,13 @@ public class UI {
     public String[] postlogin() {
         Scanner scanner = new Scanner(System.in);
         var line = scanner.nextLine();
-        var result = line.toLowerCase().split(" ");
+        var result = line.split(" ");
 
         return result;
+    }
+
+    public void displayChessBoardWhite(ChessBoard board){
+
     }
 
     public static void printMessage(String message){
