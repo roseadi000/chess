@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import exceptions.GameNotFoundException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
@@ -16,8 +17,6 @@ import result.ListGamesResultList;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 

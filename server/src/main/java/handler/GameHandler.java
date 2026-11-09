@@ -1,6 +1,7 @@
 package handler;
 
 import dataaccess.*;
+import exceptions.GameNotFoundException;
 import request.*;
 import result.CreateGameResult;
 import result.ErrorResult;

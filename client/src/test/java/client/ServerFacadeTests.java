@@ -135,7 +135,7 @@ public class ServerFacadeTests {
     }
     @Test
     void listGamesStatusCodeNot200() {
-        String result = serverFacade.createGame("Robots");
+        String result = serverFacade.listGames();
 
         assertEquals("Error: Please log in", result);
     }
@@ -171,7 +171,7 @@ public class ServerFacadeTests {
         String game = serverFacade.createGame("Robots");
         String result = serverFacade.joinGame("black", 2);
 
-        assertEquals("Please enter a valid game index. Use 'list' to see active games", result);
+        assertEquals("Error: Please enter a valid game index. Use 'list' to see active games", result);
     }
     @Test
     void joinGameStatusCodeNot200() {
@@ -188,7 +188,7 @@ public class ServerFacadeTests {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String result = serverFacade.joinGame("black", 1);
 
-        assertEquals("There are no active games. Use 'create' to create a game", result);
+        assertEquals("Error: There are no active games. Use 'create' to create a game", result);
     }
 
     @Test
@@ -204,7 +204,7 @@ public class ServerFacadeTests {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String result = serverFacade.observeGame( 1);
 
-        assertEquals("There are no active games. Use 'create' to create a game", result);
+        assertEquals("Error: There are no active games. Use 'create' to create a game", result);
     }
     @Test
     void observeGameInvalidGameIndex() {
@@ -212,7 +212,7 @@ public class ServerFacadeTests {
         String game = serverFacade.createGame("Robots");
         String result = serverFacade.observeGame(2);
 
-        assertEquals("Please enter a valid game index. Use 'list' to see active games", result);
+        assertEquals("Error: Please enter a valid game index. Use 'list' to see active games", result);
     }
 
 }

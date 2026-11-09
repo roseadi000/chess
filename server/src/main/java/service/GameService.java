@@ -2,6 +2,7 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import exceptions.GameNotFoundException;
 import model.AuthData;
 import model.GameData;
 import request.CreateGameRequest;

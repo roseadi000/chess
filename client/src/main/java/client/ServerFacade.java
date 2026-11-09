@@ -2,6 +2,7 @@ package client;
 
 import chess.ChessBoard;
 import com.google.gson.Gson;
+import exceptions.GameNotFoundException;
 import request.*;
 import result.*;
 import ui.UI;
@@ -12,7 +13,6 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Locale;
 
 public class ServerFacade {
 
@@ -33,7 +33,6 @@ public class ServerFacade {
     }
 
     public void run() {
-        var result = "";
         while (state != States.QUIT) {
             if (state == States.LOGGED_OUT) {
                 var input = ui.prelogin();
@@ -190,76 +189,43 @@ public class ServerFacade {
 
         public String joinGame (String color, Integer gameIndex) {
             String result = "";
-            ListGamesResult games = null;
             String joinGameURL = String.format("%s:%d/game", url, port);
             try {
-                HttpResponse<String> listGames = getListofGames(joinGameURL);
-                if(listGames.statusCode() == 200){
-                    games = new Gson().fromJson(listGames.body(), ListGamesResult.class);
+                gameID = getGame(gameIndex);
+                JoinGameRequestBody joinGameRequest = new JoinGameRequestBody(color.toUpperCase(), gameID);
+                String request = new Gson().toJson(joinGameRequest);
+
+                try (HttpClient client = HttpClient.newHttpClient()) {
+                    HttpRequest httpRequest = HttpRequest.newBuilder()
+                            .uri(new URI(joinGameURL))
+                            .PUT(HttpRequest.BodyPublishers.ofString(request))
+                            .header("Authorization", authToken)
+                            .build();
+                    HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+                    if (response.statusCode() == 200) {
+                        result = String.format("You have joined game %d as color: %s", gameIndex, color.toUpperCase());
+                        setGameColorState(color.toUpperCase());
+                        this.gameID = gameID;
+                    } else {
+                        result = evalErrorCode(response);
+                    }
                 }
             } catch (Exception e) {
-                return String.format("Error: %s", e.getMessage());
+                result = String.format("Error: %s", e.getMessage());
             }
-            if(games != null && games.games().size() > 0) {
-                Integer gameID = getGameID(gameIndex, games);
-                if (gameID != null) {
-                    JoinGameRequestBody joinGameRequest = new JoinGameRequestBody(color.toUpperCase(), gameID);
-                    String request = new Gson().toJson(joinGameRequest);
-
-                    try (HttpClient client = HttpClient.newHttpClient()) {
-                        HttpRequest httpRequest = HttpRequest.newBuilder()
-                                .uri(new URI(joinGameURL))
-                                .PUT(HttpRequest.BodyPublishers.ofString(request))
-                                .header("Authorization", authToken)
-                                .build();
-                        HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
-                        if (response.statusCode() == 200) {
-                            result = String.format("You have joined game %d as color: %s", gameIndex, color.toUpperCase());
-                            setGameColorState(color.toUpperCase());
-                            this.gameID = gameID;
-                        } else {
-                            result = evalErrorCode(response);
-                        }
-                    } catch (Exception e) {
-                        result = String.format("Error: %s", e.getMessage());
-                    }
-                } else {
-                    result = "Please enter a valid game index. Use 'list' to see active games";
-                }
-            }
-            else {
-                result = "There are no active games. Use 'create' to create a game";
-            }
-
             return result;
         }
 
         public String observeGame (Integer gameIndex) {
             String result = "";
-            ListGamesResult games = null;
-            String observeGameURL = String.format("%s:%d/game", url, port);
             try {
-                HttpResponse<String> listGames = getListofGames(observeGameURL);
-                if(listGames.statusCode() == 200){
-                    games = new Gson().fromJson(listGames.body(), ListGamesResult.class);
-                }
-            } catch (Exception e) {
-                return String.format("Error: %s", e.getMessage());
-            }
-            if(games != null && games.games().size() > 0) {
-                Integer gameID = getGameID(gameIndex, games);
-                if (gameID != null) {
+                int gameID = getGame(gameIndex);
                     result = String.format("You are now observing game %s", gameIndex);
                     state = States.OBSERVING;
                     this.gameID = gameID;
-                }
-                else {
-                    result = "Please enter a valid game index. Use 'list' to see active games";
-                }
-            }
-            else {
-                result = "There are no active games. Use 'create' to create a game";
+            } catch (Exception e) {
+                result = String.format("Error: %s", e.getMessage());
             }
             return result;
         }
@@ -391,6 +357,29 @@ public class ServerFacade {
             }
             else{
                 state = States.PLAYING_BLACK;
+            }
+        }
+
+        private Integer getGame(Integer gameIndex) throws Exception {
+            ListGamesResult games = null;
+            String getGameURL = String.format("%s:%d/game", url, port);
+            try {
+                HttpResponse<String> listGames = getListofGames(getGameURL);
+                if (listGames.statusCode() == 200) {
+                    games = new Gson().fromJson(listGames.body(), ListGamesResult.class);
+                }
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+            if (games.games().size() > 0) {
+                Integer gameID = getGameID(gameIndex, games);
+                if (gameID != null) {
+                    return gameID;
+                } else {
+                    throw new GameNotFoundException("Please enter a valid game index. Use 'list' to see active games");
+                }
+            } else {
+                throw new GameNotFoundException("There are no active games. Use 'create' to create a game");
             }
         }
 }
