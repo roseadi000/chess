@@ -196,7 +196,7 @@ public class ServerFacade {
             } catch (Exception e) {
                 return String.format("Error: %s", e.getMessage());
             }
-            if(games != null) {
+            if(games != null && games.games().size() > 0) {
                 Integer gameID = getGameID(gameIndex, games);
                 if (gameID != null) {
                     JoinGameRequestBody joinGameRequest = new JoinGameRequestBody(color.toUpperCase(), gameID);
@@ -212,6 +212,7 @@ public class ServerFacade {
 
                         if (response.statusCode() == 200) {
                             result = String.format("You have joined game %d as color: %s", gameIndex, color.toUpperCase());
+                            state = States.PLAYING;
                         } else {
                             result = evalErrorCode(response);
                         }
@@ -229,8 +230,31 @@ public class ServerFacade {
             return result;
         }
 
-        public void observeGame () {
-
+        public String observeGame (Integer gameIndex) {
+            String result = "";
+            ListGamesResult games = null;
+            String joinGameURL = String.format("%s:%d/game", url, port);
+            try {
+                HttpResponse<String> listGames = getListofGames(joinGameURL);
+                if(listGames.statusCode() == 200){
+                    games = new Gson().fromJson(listGames.body(), ListGamesResult.class);
+                }
+            } catch (Exception e) {
+                return String.format("Error: %s", e.getMessage());
+            }
+            if(games != null && games.games().size() > 0) {
+                Integer gameID = getGameID(gameIndex, games);
+                if (gameID != null) {
+                    result = String.format("You are now observing game %s", gameIndex);
+                }
+                else {
+                    result = "Please enter a valid game index. Use 'list' to see active games";
+                }
+            }
+            else {
+                result = "There are no active games. Use 'create' to create a game";
+            }
+            return result;
         }
 
         private void evalInput (String[]input){
@@ -255,6 +279,9 @@ public class ServerFacade {
             }
             else if(input[0].equals("list")){
                 result = listGames();
+            }
+            else if(input[0].equals("join")){
+                result = joinGame(input[1], Integer.valueOf(input[2]));
             }
             ui.printMessage(result);
         }

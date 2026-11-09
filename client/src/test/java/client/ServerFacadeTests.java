@@ -183,13 +183,36 @@ public class ServerFacadeTests {
 
         assertEquals("Error: Color is full. Please choose another color or game", result);
     }
-
     @Test
-    void observeGame() {
+    void joinGameNoActiveGame() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String result = serverFacade.joinGame("black", 1);
+
+        assertEquals("There are no active games. Use 'create' to create a game", result);
     }
 
     @Test
-    void run() {
+    void observeGame() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String game = serverFacade.createGame("Robots");
+        String result = serverFacade.observeGame(1);
+
+        assertEquals("You are now observing game 1", result);
+    }
+    @Test
+    void observeGameNoActiveGame() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String result = serverFacade.observeGame( 1);
+
+        assertEquals("There are no active games. Use 'create' to create a game", result);
+    }
+    @Test
+    void observeGameInvalidGameIndex() {
+        String create = serverFacade.register("N", "Puppies", "N@email.com");
+        String game = serverFacade.createGame("Robots");
+        String result = serverFacade.joinGame("black", 2);
+
+        assertEquals("Please enter a valid game index. Use 'list' to see active games", result);
     }
 
 }
