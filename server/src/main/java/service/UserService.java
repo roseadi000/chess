@@ -2,6 +2,8 @@ package service;
 
 import dataaccess.*;
 import dataaccess.sql.SQLDataAccess;
+import exceptions.FieldEmptyException;
+import exceptions.InvalidInputException;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;

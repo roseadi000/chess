@@ -1,11 +1,11 @@
 package dataaccess;
 
+import exceptions.InvalidInputException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Map;
 
 public interface DataAccess {

@@ -88,8 +88,7 @@ public class ServerFacadeTests {
     void createGame() {
         String create = serverFacade.register("N", "Puppies", "N@email.com");
         String result = serverFacade.createGame("Robots");
-        String id = result.split(": ")[1];
-        String expected = String.format("Robots was created with id: %s", id);
+        String expected = "Robots was successfully created";
 
         assertEquals(expected, result);
     }

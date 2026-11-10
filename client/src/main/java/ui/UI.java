@@ -7,8 +7,6 @@ import chess.ChessPosition;
 import result.ListGamesResult;
 import result.ListGamesResultList;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Scanner;
 
 import static ui.EscapeSequences.*;

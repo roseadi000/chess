@@ -1,4 +1,4 @@
-package dataaccess;
+package exceptions;
 
 public class FieldEmptyException extends Exception {
     public FieldEmptyException(String message) {

@@ -34,30 +34,27 @@ public class ServerFacade {
     }
 
     public void run() {
+        CommandParser parser = new CommandParser();
         while (state != States.QUIT) {
-            if (state == States.LOGGED_OUT) {
-                var input = ui.prelogin();
-                if (input.length > 0) {
-                    evalPreloginInput(input);
-                } else {
-                    System.out.println("Please enter a command. Type 'help' for list of commands");
+            try {
+                if (state == States.LOGGED_OUT) {
+                    var input = ui.prelogin();
+                    evalPreloginCommand(parser.evalInput(input), input);
+                } else if (state == States.LOGGED_IN) {
+                    var input = ui.postlogin();
+                    evalPostloginCommand(parser.evalInput(input), input);
+                } else if (state == States.PLAYING_WHITE) {
+                    ui.displayChessBoardWhite(new ChessGame().getBoard());
+                    state = States.LOGGED_IN;
+                } else if (state == States.PLAYING_BLACK) {
+                    ui.displayChessBoardBlack(new ChessGame().getBoard());
+                    state = States.LOGGED_IN;
+                } else if(state == States.OBSERVING){
+                    ui.displayChessBoardWhite(new ChessGame().getBoard());
+                    state = States.LOGGED_IN;
                 }
-            }
-            else if(state == States.LOGGED_IN){
-                var input = ui.postlogin();
-                if (input.length > 0) {
-                    evalPostloginInput(input);
-                } else {
-                    System.out.println("Please enter a command. Type 'help' for list of commands");
-                }
-            }
-            else if(state == States.PLAYING_WHITE){
-                ui.displayChessBoardWhite(new ChessGame().getBoard());
-                state = States.LOGGED_IN;
-            }
-            else if(state == States.PLAYING_BLACK){
-                ui.displayChessBoardBlack(new ChessGame().getBoard());
-                state = States.LOGGED_IN;
+            } catch (Exception e) {
+                ui.printMessage(String.format("Error: %s", e.getMessage()));
             }
 
         }
@@ -162,7 +159,7 @@ public class ServerFacade {
 
                 if (response.statusCode() == 200) {
                     CreateGameResult createGameResult = new Gson().fromJson(response.body(), CreateGameResult.class);
-                    result = String.format("%s was created with id: %d", createGameRequest.gameName(), createGameResult.gameID());
+                    result = String.format("%s was successfully created", createGameRequest.gameName());
                 }
                 else{
                     result = evalErrorCode(response);
@@ -236,45 +233,30 @@ public class ServerFacade {
             return result;
         }
 
-        private void evalPreloginInput(String[] input){
+        private void evalPreloginCommand(CommandParser.InputCommands command, String[] input){
             String result = "";
-            String command = input[0].toLowerCase();
-            if(input[0].equals("help")){
+            if(command == CommandParser.InputCommands.HELP){
                 result = """
                 login <username> <password> - Login in to play
                 register <username> <password> <email> - Don't have an account? Register
                 quit - Exit the program""";
             }
-            else if (command.equals("register")) {
-                if (input.length >= 4) {
-                    result = register(input[1], input[2], input[3]);
-                }
-                else{
-                    result = "Error: Please enter a username, password, and email";
-                }
+            else if (command == CommandParser.InputCommands.REGISTER) {
+                result = register(input[1], input[2], input[3]);
             }
-            else if(command.equals("login")){
-                if(input.length >= 3){
-                    result = login(input[1], input[2]);
-                }
-                else{
-                    result = "Please enter a username and password";
-                }
+            else if(command == CommandParser.InputCommands.LOGIN){
+                result = login(input[1], input[2]);
             }
-            else if(command.equals("quit")){
+            else if(command == CommandParser.InputCommands.QUIT){
                 state = States.QUIT;
                 result = "Exiting program...";
-            }
-            else{
-                result = "Please enter a valid command. Use 'help' to see commands";
             }
             ui.printMessage(result);
         }
 
-        private void evalPostloginInput (String[]input){
+        private void evalPostloginCommand(CommandParser.InputCommands command, String[]input){
             String result = "";
-            String command = input[0].toLowerCase();
-            if(command.equals("help")){
+            if(command == CommandParser.InputCommands.HELP){
                 result = """
                 logout - Logout of your account
                 create <Name> - Create a chess game
@@ -283,50 +265,32 @@ public class ServerFacade {
                 observe <ID> - Watch a chess game
                 quit - Exit the program""";
             }
-            else if(command.equals("logout")){
+            else if(command == CommandParser.InputCommands.LOGOUT){
                 result = logout();
             }
-            else if(command.equals("create")){
-                if(input.length >= 2) {
-                    result = createGame(input[1]);
-                }
-                else{
-                    result = "Please enter a game name";
-                }
+            else if(command == CommandParser.InputCommands.CREATE){
+                result = createGame(input[1]);
             }
-            else if(command.equals("list")){
+            else if(command == CommandParser.InputCommands.LIST){
                 result = listGames();
             }
-            else if(command.equals("join")){
-                if(input.length >= 3) {
+            else if(command == CommandParser.InputCommands.JOIN){
                     try {
                         result = joinGame(input[2], Integer.valueOf(input[1]));
                     } catch (NumberFormatException e) {
                         result = "Please do join <ID> <WHITE|BLACK>";
                     }
-                }
-                else{
-                    result = "Please enter a WHITE or BLACK and a game number";
+            }
+            else if(command == CommandParser.InputCommands.OBSERVE){
+                try {
+                    result = observeGame(Integer.valueOf(input[1]));
+                } catch (NumberFormatException e) {
+                    result = "ID must be a number";
                 }
             }
-            else if(command.equals("observe")){
-                if(input.length >= 2) {
-                    try {
-                        result = observeGame(Integer.valueOf(input[1]));
-                    } catch (NumberFormatException e) {
-                        result = "ID must be a number";
-                    }
-                }
-                else{
-                    result = "Please enter a game number";
-                }
-            }
-            else if(command.equals("quit")){
+            else if(command == CommandParser.InputCommands.QUIT){
                 state = States.QUIT;
                 result = "Exiting program...";
-            }
-            else{
-                result = "Please enter a valid command. Use 'help' to see commands";
             }
             ui.printMessage(result);
         }

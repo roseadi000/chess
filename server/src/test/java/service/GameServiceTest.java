@@ -2,7 +2,9 @@ package service;
 
 import chess.ChessGame;
 import dataaccess.*;
+import exceptions.FieldEmptyException;
 import exceptions.GameNotFoundException;
+import exceptions.InvalidInputException;
 import model.AuthData;
 import model.GameData;
 import model.UserData;
