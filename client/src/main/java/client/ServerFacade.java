@@ -1,6 +1,7 @@
 package client;
 
 import chess.ChessBoard;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exceptions.GameNotFoundException;
 import request.*;
@@ -51,7 +52,12 @@ public class ServerFacade {
                 }
             }
             else if(state == States.PLAYING_WHITE){
-                ui.displayChessBoardWhite(new ChessBoard());
+                ui.displayChessBoardWhite(new ChessGame().getBoard());
+                state = States.LOGGED_IN;
+            }
+            else if(state == States.PLAYING_BLACK){
+                ui.displayChessBoardBlack(new ChessGame().getBoard());
+                state = States.LOGGED_IN;
             }
 
         }
@@ -244,7 +250,7 @@ public class ServerFacade {
                     result = register(input[1], input[2], input[3]);
                 }
                 else{
-                    result = "Please enter a username, password, and email";
+                    result = "Error: Please enter a username, password, and email";
                 }
             }
             else if(command.equals("login")){
