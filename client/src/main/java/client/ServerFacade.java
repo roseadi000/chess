@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Scanner;
 
 public class ServerFacade {
 
@@ -35,13 +36,14 @@ public class ServerFacade {
 
     public void run() {
         CommandParser parser = new CommandParser();
+        Scanner scanner = new Scanner(System.in);
         while (state != States.QUIT) {
             try {
                 if (state == States.LOGGED_OUT) {
-                    var input = ui.prelogin();
+                    var input = ui.prelogin(scanner);
                     evalPreloginCommand(parser.evalInput(input), input);
                 } else if (state == States.LOGGED_IN) {
-                    var input = ui.postlogin();
+                    var input = ui.postlogin(scanner);
                     evalPostloginCommand(parser.evalInput(input), input);
                 } else if (state == States.PLAYING_WHITE) {
                     ui.displayChessBoardWhite(new ChessGame().getBoard());
@@ -251,6 +253,9 @@ public class ServerFacade {
                 state = States.QUIT;
                 result = "Exiting program...";
             }
+            else{
+                result = "Error: Please enter a valid command. Use 'help' to see valid commands";
+            }
             ui.printMessage(result);
         }
 
@@ -291,6 +296,9 @@ public class ServerFacade {
             else if(command == CommandParser.InputCommands.QUIT){
                 state = States.QUIT;
                 result = "Exiting program...";
+            }
+            else{
+                result = "Error: Please enter a valid command. Use 'help' to see valid commands";
             }
             ui.printMessage(result);
         }

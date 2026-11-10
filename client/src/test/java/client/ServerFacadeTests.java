@@ -4,6 +4,8 @@ import dataaccess.sql.SQLDataAccess;
 import org.junit.jupiter.api.*;
 import server.Server;
 
+import java.io.ByteArrayInputStream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -212,6 +214,34 @@ public class ServerFacadeTests {
         String result = serverFacade.observeGame(2);
 
         assertEquals("Error: Please enter a valid game index. Use 'list' to see active games", result);
+    }
+
+    @Test
+    void run() {
+        assertDoesNotThrow(() -> {
+            String input = "help\n" +
+                    "register Rex forTheRepublic rex@501st.com\n" +
+                    "login Rex forTheRepublic\n" +
+                    "help\n" +
+                    "create Clones\n" +
+                    "join 1 white\n" +
+                    "logout\n" +
+                    "register Fives forTheRepublic fives@501st.com\n" +
+                    "list\n" +
+                    "join 1 Black\n" +
+                    "logout\n" +
+                    "register Kix imAMedic kix@501st.com\n" +
+                    "dog\n" +
+                    "list\n" +
+                    "observe 2\n" +
+                    "observe 1\n" +
+                    "quit";
+
+
+            System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+            serverFacade.run();
+        });
     }
 
 }

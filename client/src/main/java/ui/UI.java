@@ -13,17 +13,18 @@ import static ui.EscapeSequences.*;
 
 public class UI {
 
-    public String[] prelogin() {
+    private String chessBoardEdge = "\u001b[30;103;1m\u2003      " +
+            "a\u2003   b\u2003   c\u2003   d\u2003   e\u2003   f\u2003   g\u2003   h       \u001b[0m\n";
+
+    public String[] prelogin(Scanner scanner) {
         System.out.println("Welcome to Chess CLI. Type 'help' to get started");
-        Scanner scanner = new Scanner(System.in);
         var line = scanner.nextLine();
         var result = line.split(" ");
 
         return result;
     }
 
-    public String[] postlogin() {
-        Scanner scanner = new Scanner(System.in);
+    public String[] postlogin(Scanner scanner) {
         var line = scanner.nextLine();
         var result = line.split(" ");
 
@@ -32,76 +33,57 @@ public class UI {
 
     public void displayChessBoardWhite(ChessBoard board){
         int colorNum = 1;
-        StringBuilder chessBoard = new StringBuilder("\u001b[30;103;1m\u2003      " +
-                "a\u2003   b\u2003   c\u2003   d\u2003   e\u2003   f\u2003   g\u2003   h       \u001b[0m\n");
+        StringBuilder chessBoard = new StringBuilder(chessBoardEdge);
         for(int r = 8; r > 0; r--){
             chessBoard.append(String.format("\u001b[30;103;1m  %d  \u001b[0m", r));
             for(int c = 8; c > 0; c--){
-                ChessPiece piece = board.getPiece(new ChessPosition(r, c));
-                String pieceCode = getChessPieceCode(piece);
-                int pieceColorCode = 0;
-                int squareColorCode = 0;
-                if(colorNum % 2 != 0) {
-                    squareColorCode = 105;
-                }
-                else{
-                    squareColorCode = 100;
-                }
-                if(piece != null) {
-                    if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        pieceColorCode = 30;
-                    } else {
-                        pieceColorCode = 30;
-                    }
-                }
-                String box = String.format("\u001b[%d;%d;1m %s \u001b[0m", pieceColorCode, squareColorCode, pieceCode);
-                chessBoard.append(box);
+                chessBoard.append(getRowDisplay(board, colorNum, r, c));
                 colorNum++;
             }
             chessBoard.append(String.format("\u001b[30;103;1m  %d  \u001b[0m\n", r));
             colorNum++;
         }
-        chessBoard.append("\u001b[30;103;1m\u2003      a\u2003   b\u2003   " +
-                "c\u2003   d\u2003   e\u2003   f\u2003   g\u2003   h       \u001b[0m\n");
+        chessBoard.append(chessBoardEdge);
 
         System.out.println(chessBoard);
     }
 
     public void displayChessBoardBlack(ChessBoard board){
         int colorNum = 1;
-        StringBuilder chessBoard = new StringBuilder("\u001b[30;103;1m\u2003      " +
-                "a\u2003   b\u2003   c\u2003   d\u2003   e\u2003   f\u2003   g\u2003   h       \u001b[0m\n");
+        StringBuilder chessBoard = new StringBuilder(chessBoardEdge);
         for(int r = 1; r < 9; r++){
             chessBoard.append(String.format("\u001b[30;103;1m  %d  \u001b[0m", r));
             for(int c = 1; c < 9; c++){
-                ChessPiece piece = board.getPiece(new ChessPosition(r, c));
-                String pieceCode = getChessPieceCode(piece);
-                int pieceColorCode = 0;
-                int squareColorCode = 0;
-                if(colorNum % 2 != 0) {
-                    squareColorCode = 105;
-                }
-                else{
-                    squareColorCode = 100;
-                }
-                if(piece != null) {
-                    if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-                        pieceColorCode = 30;
-                    } else {
-                        pieceColorCode = 30;
-                    }
-                }
-                String box = String.format("\u001b[%d;%d;1m %s \u001b[0m", pieceColorCode, squareColorCode, pieceCode);
-                chessBoard.append(box);
+                chessBoard.append(getRowDisplay(board, colorNum, r, c));
                 colorNum++;
             }
             chessBoard.append(String.format("\u001b[30;103;1m  %d  \u001b[0m\n", r));
             colorNum++;
         }
-        chessBoard.append("\u001b[30;103;1m\u2003      a\u2003   b\u2003   " +
-                "c\u2003   d\u2003   e\u2003   f\u2003   g\u2003   h       \u001b[0m\n");
+        chessBoard.append(chessBoardEdge);
 
         System.out.println(chessBoard);
+    }
+
+    private String getRowDisplay(ChessBoard board, int colorNum, int r, int c){
+        ChessPiece piece = board.getPiece(new ChessPosition(r, c));
+        String pieceCode = getChessPieceCode(piece);
+        int pieceColorCode = 0;
+        int squareColorCode = 0;
+        if(colorNum % 2 != 0) {
+            squareColorCode = 105;
+        }
+        else{
+            squareColorCode = 100;
+        }
+        if(piece != null) {
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                pieceColorCode = 30;
+            } else {
+                pieceColorCode = 30;
+            }
+        }
+        return String.format("\u001b[%d;%d;1m %s \u001b[0m", pieceColorCode, squareColorCode, pieceCode);
     }
 
     public static void printMessage(String message){
