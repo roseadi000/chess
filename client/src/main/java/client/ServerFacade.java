@@ -1,6 +1,5 @@
 package client;
 
-import chess.ChessBoard;
 import chess.ChessGame;
 import com.google.gson.Gson;
 import exceptions.GameNotFoundException;
@@ -85,7 +84,7 @@ public class ServerFacade {
                 result = evalErrorCode(response);
             }
         } catch (Exception e) {
-            result = String.format("Error: %s", e.getMessage());
+            result = "Error: Couldn't connect to the server. Please try again later.";
         }
         return result;
     }
@@ -113,7 +112,7 @@ public class ServerFacade {
                     result = evalErrorCode(response);
                 }
             } catch (Exception e) {
-                result = String.format("Error: %s", e.getMessage());
+                result = "Error: Couldn't connect to the server. Please try again later.";
             }
             return result;
         }
