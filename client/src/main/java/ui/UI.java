@@ -13,9 +13,6 @@ import static ui.EscapeSequences.*;
 
 public class UI {
 
-    private String chessBoardEdge = "\u001b[30;103;1m\u2003      " +
-            "a\u2003   b\u2003   c\u2003   d\u2003   e\u2003   f\u2003   g\u2003   h       \u001b[0m\n";
-
     public String[] prelogin(Scanner scanner) {
         System.out.println("Welcome to Chess CLI. Type 'help' to get started");
         var line = scanner.nextLine();
@@ -32,11 +29,13 @@ public class UI {
     }
 
     public void displayChessBoardWhite(ChessBoard board){
+        String chessBoardEdge = "\u001b[30;103;1m\u2003      " +
+                "a\u2003   b\u2003   c\u2003   d\u2003   e\u2003   f\u2003   g\u2003   h       \u001b[0m\n";
         int colorNum = 1;
         StringBuilder chessBoard = new StringBuilder(chessBoardEdge);
         for(int r = 8; r > 0; r--){
             chessBoard.append(String.format("\u001b[30;103;1m  %d  \u001b[0m", r));
-            for(int c = 8; c > 0; c--){
+            for(int c = 1; c < 9; c++){
                 chessBoard.append(getRowDisplay(board, colorNum, r, c));
                 colorNum++;
             }
@@ -49,11 +48,13 @@ public class UI {
     }
 
     public void displayChessBoardBlack(ChessBoard board){
+        String chessBoardEdge = "\u001b[30;103;1m\u2003      " +
+                "h\u2003   g\u2003   f\u2003   e\u2003   d\u2003   c\u2003   b\u2003   a       \u001b[0m\n";
         int colorNum = 1;
         StringBuilder chessBoard = new StringBuilder(chessBoardEdge);
         for(int r = 1; r < 9; r++){
             chessBoard.append(String.format("\u001b[30;103;1m  %d  \u001b[0m", r));
-            for(int c = 1; c < 9; c++){
+            for(int c = 8; c > 0; c--){
                 chessBoard.append(getRowDisplay(board, colorNum, r, c));
                 colorNum++;
             }
@@ -94,11 +95,19 @@ public class UI {
         StringBuilder list = new StringBuilder("Active Games:");
         int index = 1;
         for(ListGamesResultList game : games.games()){
+            String whiteUsername = game.whiteUsername();
+            String blackUsername = game.blackUsername();
+            if(whiteUsername == null){
+                whiteUsername = "Empty";
+            }
+            if(blackUsername == null){
+                blackUsername = "Empty";
+            }
             list.append(String.format("""
                     \n%d. %s
                        White: %s
                        Black: %s""", index, game.gameName(),
-                    game.whiteUsername(), game.blackUsername()));
+                    whiteUsername, blackUsername));
             index++;
         }
 
