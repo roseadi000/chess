@@ -110,8 +110,8 @@ public class ServerFacadeTests {
         String expected = """
                 Active Games:
                 1. Robots
-                   White: null
-                   Black: null""";
+                   White: Empty
+                   Black: Empty""";
 
         assertEquals(expected, result);
     }
@@ -126,11 +126,11 @@ public class ServerFacadeTests {
         String expected = """
                 Active Games:
                 1. Dogs
-                   White: null
-                   Black: null
+                   White: Empty
+                   Black: Empty
                 2. Robots
-                   White: null
-                   Black: null""";
+                   White: Empty
+                   Black: Empty""";
 
         assertEquals(expected, result);
     }
